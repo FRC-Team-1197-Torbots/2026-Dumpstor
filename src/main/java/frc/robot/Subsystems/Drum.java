@@ -17,7 +17,7 @@ public class Drum extends SubsystemBase {
     }
 
     public void TestDrum() {
-        RunDrum(ShooterConstants.TestShootSpeed);
+        //RunDrum(ShooterConstants.TestShootSpeed);
     }
 
     public void DrumOff() {
