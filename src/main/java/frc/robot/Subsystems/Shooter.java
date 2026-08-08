@@ -11,12 +11,8 @@ public class Shooter extends SubsystemBase{
         kicker = new Kicker();
     }
 
-    public void TestKick1() {
-        kicker.TestKick1();
-    }
-
-    public void TestKick2() {
-        kicker.TestKick2();
+    public void KickOn() {
+        kicker.On();
     }
 
     public void KickOff() {

@@ -22,8 +22,8 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    controller.a().onTrue(Commands.runOnce(() -> shooter.TestKick1())).onFalse(Commands.runOnce(() -> shooter.KickOff()));
-    controller.b().onTrue(Commands.runOnce(() -> shooter.TestKick2())).onFalse(Commands.runOnce(() -> shooter.KickOff()));
+    controller.a().onTrue(Commands.runOnce(() -> shooter.KickOn())).onFalse(Commands.runOnce(() -> shooter.KickOff()));
+    controller.b().onTrue(Commands.runOnce(() -> shooter.TestDrum())).onFalse(Commands.runOnce(() -> shooter.StopDrum()));
   }
 
   public Command getAutonomousCommand() {
