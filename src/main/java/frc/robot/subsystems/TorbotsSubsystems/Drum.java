@@ -17,10 +17,6 @@ public class Drum extends SubsystemBase {
         //Left2 = new TalonFX(ShooterConstants.CANDrumLeft2);
     }
 
-    public void TestDrum() {
-        RunDrum(ShooterConstants.TestShootSpeed);
-    }
-
     public void DrumOff() {
         RunDrum(0);
     }
