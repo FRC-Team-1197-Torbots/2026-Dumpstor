@@ -8,13 +8,11 @@ import static org.wpilib.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
-import org.wpilib.command2.sysid.SysIdRoutine.Direction;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -35,12 +33,14 @@ public class RobotContainer {
 
     private final CommandGamepad joystick = new CommandGamepad(0);
 
-    // private final Drum drum = new Drum();
+    // Uncommented the drum subsystem
+    private final Drum drum = new Drum();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public RobotContainer() {
         configureBindings();
+        setupDashboardTuning();
     }
 
     private void configureBindings() {
@@ -68,6 +68,39 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        // ==========================================
+        // DRUM TUNING BINDINGS
+        // ==========================================
+        
+        // Hold A: Slowly ramp voltage by 0.1V/sec to find kS (releases to 0V)
+        joystick.southFace().whileTrue(drum.findKSCommand());
+
+        // Hold B: Run open-loop 9.0V characterization test to find kV
+        joystick.eastFace().whileTrue(drum.runVoltageCharacterization(9.0));
+
+        // Hold Y: Run closed-loop target test (e.g., 50.0 RPS) to evaluate kP response
+        joystick.northFace().whileTrue(
+            drum.run(() -> drum.setVelocityRPS(50.0))
+                .finallyDo(interrupted -> drum.stop())
+        );
+
+        // Press X: Hard emergency stop for the drum
+        joystick.westFace().onTrue(Commands.runOnce(drum::stop, drum));
+    }
+
+    private void setupDashboardTuning() {
+        // Push an instant button to SmartDashboard/Shuffleboard to flash updated gains
+        SmartDashboard.putData("Drum/Apply Gains", Commands.runOnce(drum::applyDashboardGains, drum));
+
+        // Convenience button to calculate and push kV directly onto the dashboard
+        SmartDashboard.putData("Drum/Compute & Push kV (from 9V)", Commands.runOnce(() -> {
+            double currentRPS = drum.getVelocityRPS();
+            double currentKS = SmartDashboard.getNumber("Drum/Tune/kS", 0.0);
+            double calculatedKV = Drum.computeKV(9.0, currentRPS, currentKS);
+
+            SmartDashboard.putNumber("Drum/Tune/kV", calculatedKV);
+        }, drum));
     }
 
     public Command getAutonomousCommand() {
