@@ -73,18 +73,24 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(int cameraIndex) {
         if (fieldLayout == null) return Optional.empty();
 
+        PhotonCamera cam;
+        PhotonPoseEstimator poseEstimator;
+
         switch (cameraIndex) {
-            case 1:
-                return poseEstimator1.estimateCoprocMultiTagPose(cam1.getLatestResult());
-            case 2:
-                return poseEstimator2.estimateCoprocMultiTagPose(cam2.getLatestResult());
-            case 3:
-                return poseEstimator3.estimateCoprocMultiTagPose(cam3.getLatestResult());
-            case 4:
-                return poseEstimator4.estimateCoprocMultiTagPose(cam4.getLatestResult());
-            default:
-                return Optional.empty();
+            case 1: cam = cam1; poseEstimator = poseEstimator1; break;
+            case 2: cam = cam2; poseEstimator = poseEstimator2; break;
+            case 3: cam = cam3; poseEstimator = poseEstimator3; break;
+            case 4: cam = cam4; poseEstimator = poseEstimator4; break;
+            default: return Optional.empty();
         }
+
+        var results = cam.getAllUnreadResults();
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Return the pose estimation from the most recent frame in the queue
+        return poseEstimator.estimateCoprocMultiTagPose(results.get(results.size() - 1));
     }
 
     @Override
