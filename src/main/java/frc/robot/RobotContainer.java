@@ -17,6 +17,7 @@ import org.wpilib.smartdashboard.SmartDashboard;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
+import frc.robot.subsystems.TorbotsSubsystems.Intake;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -35,6 +36,7 @@ public class RobotContainer {
 
     // Uncommented the drum subsystem
     private final Drum drum = new Drum();
+    private final Intake intake = new Intake();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -74,13 +76,13 @@ public class RobotContainer {
         // ==========================================
         
         // Hold A: Slowly ramp voltage by 0.1V/sec to find kS (releases to 0V)
-        joystick.southFace().whileTrue(drum.findKSCommand());
+        joystick.button(0).whileTrue(drum.findKSCommand());
 
         // Hold B: Run open-loop 9.0V characterization test to find kV
-        joystick.eastFace().whileTrue(drum.runVoltageCharacterization(9.0));
+        joystick.button(1).whileTrue(drum.runVoltageCharacterization(9.0)); //steay state RPS was 72
 
         // Hold Y: Run closed-loop target test (e.g., 50.0 RPS) to evaluate kP response
-        joystick.northFace().whileTrue(
+        joystick.button(2).whileTrue(
             drum.run(() -> drum.setVelocityRPS(50.0))
                 .finallyDo(interrupted -> drum.stop())
         );

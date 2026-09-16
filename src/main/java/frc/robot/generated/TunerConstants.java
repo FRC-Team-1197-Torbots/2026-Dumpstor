@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.*;
 import com.ctre.phoenix6.swerve.*;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
-
 import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
@@ -89,7 +88,7 @@ public class TunerConstants {
     private static final double kCoupleRatio = 4.5;
 
     private static final double kDriveGearRatio = 7.03125;
-    private static final double kSteerGearRatio = 26;
+    private static final double kSteerGearRatio = 26.09090909090909;
     private static final Distance kWheelRadius = Inches.of(2);
 
     private static final boolean kInvertLeftSide = false;
@@ -137,7 +136,7 @@ public class TunerConstants {
     private static final int kFrontLeftDriveMotorId = 12;
     private static final int kFrontLeftSteerMotorId = 11;
     private static final int kFrontLeftEncoderId = 31;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.4912109375);
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.494140625);
     private static final boolean kFrontLeftSteerMotorInverted = false;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -148,7 +147,7 @@ public class TunerConstants {
     private static final int kFrontRightDriveMotorId = 14;
     private static final int kFrontRightSteerMotorId = 13;
     private static final int kFrontRightEncoderId = 32;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.036376953125);
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.033203125);
     private static final boolean kFrontRightSteerMotorInverted = false;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -159,7 +158,7 @@ public class TunerConstants {
     private static final int kBackLeftDriveMotorId = 18;
     private static final int kBackLeftSteerMotorId = 17;
     private static final int kBackLeftEncoderId = 34;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.182373046875);
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.19287109375);
     private static final boolean kBackLeftSteerMotorInverted = false;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -170,7 +169,7 @@ public class TunerConstants {
     private static final int kBackRightDriveMotorId = 16;
     private static final int kBackRightSteerMotorId = 15;
     private static final int kBackRightEncoderId = 33;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.259765625);
+    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.26318359375);
     private static final boolean kBackRightSteerMotorInverted = false;
     private static final boolean kBackRightEncoderInverted = false;
 

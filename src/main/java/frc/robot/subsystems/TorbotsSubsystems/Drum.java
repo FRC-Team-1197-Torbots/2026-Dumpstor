@@ -24,18 +24,20 @@ public class Drum extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
+    private double testKS = 0.0f;
+
     public Drum() {
         Right1 = new TalonFX(ShooterConstants.CANDrumRight1, CANBus.systemcore(ShooterConstants.CANLOOP));
         Right2 = new TalonFX(ShooterConstants.CANDrumRight2, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Left1 = new TalonFX(ShooterConstants.CANDrumRight1, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Left2 = new TalonFX(ShooterConstants.CANDrumRight2, CANBus.systemcore(ShooterConstants.CANLOOP));
+        Left1 = new TalonFX(ShooterConstants.CANDrumLeft1, CANBus.systemcore(ShooterConstants.CANLOOP));
+        Left2 = new TalonFX(ShooterConstants.CANDrumLeft2, CANBus.systemcore(ShooterConstants.CANLOOP));
 
         // General configuration applied to all 4 motors
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         // Slot 0 default gains on the master
-        commonConfig.Slot0.kS = 0.0;
+        commonConfig.Slot0.kS = 0.26;
         commonConfig.Slot0.kV = 0.0;
         commonConfig.Slot0.kP = 0.0;
         commonConfig.Slot0.kD = 0.0;
@@ -95,8 +97,11 @@ public class Drum extends SubsystemBase {
      */
     public Command findKSCommand() {
         return this.run(() -> {
-            double nextVolt = Right1.getMotorVoltage().getValueAsDouble() + (0.1 * 0.02);
+            
+            double nextVolt = testKS + 0.001d;
             setVoltage(nextVolt);
+            testKS = nextVolt;
+            System.out.println("[DRUM] Finding KS " + testKS);
         }).finallyDo(interrupted -> stop());
     }
 
