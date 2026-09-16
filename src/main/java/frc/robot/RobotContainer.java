@@ -14,6 +14,7 @@ import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
 import org.wpilib.smartdashboard.SmartDashboard;
 
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
@@ -76,10 +77,12 @@ public class RobotContainer {
         // ==========================================
         
         // Hold A: Slowly ramp voltage by 0.1V/sec to find kS (releases to 0V)
-        joystick.button(0).whileTrue(drum.findKSCommand());
+        joystick.button(0).whileTrue(Commands.runOnce(() -> intake.setDeployPosition(IntakeConstants.intakeEnd), intake));
 
+
+        joystick.button(1).whileTrue(Commands.runOnce(() -> intake.setDeployPosition(IntakeConstants.intakeStart), intake));
         // Hold B: Run open-loop 9.0V characterization test to find kV
-        joystick.button(1).whileTrue(drum.runVoltageCharacterization(9.0)); //steay state RPS was 72
+        // joystick.button(1).whileTrue(drum.runVoltageCharacterization(9.0)); //steay state RPS was 72
 
         // Hold Y: Run closed-loop target test (e.g., 50.0 RPS) to evaluate kP response
         joystick.button(2).whileTrue(

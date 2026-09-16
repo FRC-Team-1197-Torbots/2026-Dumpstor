@@ -37,7 +37,7 @@ public class Intake extends SubsystemBase {
         deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         
         // Default PID for deploy (Linear / Rack & Pinion style)
-        deployConfig.Slot0.kP = 0.0;
+        deployConfig.Slot0.kP = 0.25;
         deployConfig.Slot0.kI = 0.0;
         deployConfig.Slot0.kD = 0.0;
         deployConfig.Slot0.kS = 0.0;
@@ -50,6 +50,7 @@ public class Intake extends SubsystemBase {
 
         deploy1.getConfigurator().apply(deployConfig);
         deploy2.getConfigurator().apply(deployConfig);
+
         roller1.getConfigurator().apply(rollerConfig);
         roller2.getConfigurator().apply(rollerConfig);
 

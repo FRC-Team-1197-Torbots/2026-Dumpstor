@@ -2,7 +2,10 @@ package frc.robot.Constants;
 
 //Rack and roller
 public class IntakeConstants {
-    public final static int CANLOOP = 3;
+    public final static int CANLOOP = 4;
+
+    public final static float intakeEnd = 12.75f;
+    public final static float intakeStart = 0;
 
     public final static int Intake1 = 35;
     public final static int Intake2 = 36;
