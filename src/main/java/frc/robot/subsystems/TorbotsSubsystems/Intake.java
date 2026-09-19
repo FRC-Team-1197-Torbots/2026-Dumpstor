@@ -45,6 +45,12 @@ public class Intake extends SubsystemBase {
         deployConfig.Slot0.kG = 0.0;
         deployConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
+        // Current limits for deploy to prevent breaking hard stops
+        deployConfig.CurrentLimits.SupplyCurrentLimit = 20.0;
+        deployConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        deployConfig.CurrentLimits.StatorCurrentLimit = 30.0;
+        deployConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
@@ -63,7 +69,8 @@ public class Intake extends SubsystemBase {
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Setup SmartDashboard for live tuning
-        SmartDashboard.putNumber("Intake/Tune/kP", 0.0);
+        // A kP of 0.2 means 0.2 Volts applied per 1 rotation of error. 
+        SmartDashboard.putNumber("Intake/Tune/kP", 0.2);
         SmartDashboard.putNumber("Intake/Tune/kI", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kD", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kS", 0.0);
@@ -72,14 +79,14 @@ public class Intake extends SubsystemBase {
         
         // Dashboard field for testing roller speeds live
         SmartDashboard.putNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
+        // Dashboard field for testing deploy position
+        SmartDashboard.putNumber("Intake/Test/TargetDeployRots", 0.0);
     }
 
     @Override
     public void periodic() {
         // Telemetry for tuning and debugging
         SmartDashboard.putNumber("Intake/Deploy Position (rots)", deploy1.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Deploy Velocity (rps)", deploy1.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Deploy Applied Volts", deploy1.getMotorVoltage().getValueAsDouble());
     }
 
     // ==========================================
@@ -103,6 +110,42 @@ public class Intake extends SubsystemBase {
 
     public Command runDeployToPositionCommand(double positionRots) {
         return this.run(() -> setDeployPosition(positionRots));
+    }
+
+    private boolean isDeployed = false;
+
+    /**
+     * Toggles the intake deploy between stowed (0.0 rots) and deployed (kDeployTargetRots).
+     * Since we configured Stator Current Limits (30A), if the intake hits the hard stops 
+     * before reaching the exact rotations, the motor will safely stall and hold position 
+     * without burning out or breaking the mechanism.
+     */
+    public Command toggleDeployCommand() {
+        return this.runOnce(() -> {
+            isDeployed = !isDeployed;
+            if (isDeployed) {
+                setDeployPosition(IntakeConstants.kDeployTargetRots);
+            } else {
+                setDeployPosition(0.0);
+            }
+        });
+    }
+
+    public void zeroDeployEncoder() {
+        deploy1.setPosition(0.0);
+    }
+
+    /**
+     * Reads the tuning gains (kP, kI, kD) from the dashboard, applies them to the motor,
+     * and runs the deploy to the 'TargetDeployRots' specified on the dashboard.
+     * Perfect for lab tuning.
+     */
+    public Command tuneDeployPositionCommand() {
+        return this.run(() -> {
+            applyDashboardGains();
+            double target = SmartDashboard.getNumber("Intake/Test/TargetDeployRots", 0.0);
+            setDeployPosition(target);
+        }).finallyDo(interrupted -> stopDeploy());
     }
 
     // ==========================================
