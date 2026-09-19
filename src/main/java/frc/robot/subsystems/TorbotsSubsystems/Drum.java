@@ -4,7 +4,6 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
 import org.wpilib.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -41,6 +40,16 @@ public class Drum extends SubsystemBase {
         commonConfig.Slot0.kV = 0.0;
         commonConfig.Slot0.kP = 0.0;
         commonConfig.Slot0.kD = 0.0;
+
+        // Flywheels take massive energy to spin up quickly. With 4 motors, a full unrestrained
+        // spin-up would draw >200A and cause a brownout. We cap the supply limit to 35-40A per motor
+        // (140-160A total) which a healthy battery can handle for the 1-2 second spin-up.
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        
+        // Flywheels rarely stall, but if a game piece gets completely jammed, this protects the motors.
+        commonConfig.CurrentLimits.StatorCurrentLimit = 60.0;
+        commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         Right1.getConfigurator().apply(commonConfig);
         Right2.getConfigurator().apply(commonConfig);
@@ -122,19 +131,5 @@ public class Drum extends SubsystemBase {
         if (steadyStateRPS <= 0.01)
             return 0.0;
         return (appliedVolts - measuredKS) / steadyStateRPS;
-    }
-
-    /**
-     * Reads Slot0 gains from SmartDashboard and pushes them directly to the master
-     * motor.
-     */
-    public void applyDashboardGains() {
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kS = SmartDashboard.getNumber("Drum/Tune/kS", 0.0);
-        slot0.kV = SmartDashboard.getNumber("Drum/Tune/kV", 0.0);
-        slot0.kP = SmartDashboard.getNumber("Drum/Tune/kP", 0.0);
-        slot0.kD = SmartDashboard.getNumber("Drum/Tune/kD", 0.0);
-
-        Right1.getConfigurator().apply(slot0);
     }
 }

@@ -239,6 +239,38 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
+    public void setupPathPlanner() {
+        // This is a SwerveRequest to drive the robot based on ChassisVelocities from PathPlanner
+        final SwerveRequest.ApplyRobotVelocity autoRequest = new SwerveRequest.ApplyRobotVelocity();
+
+        try {
+            com.pathplanner.lib.config.RobotConfig config = com.pathplanner.lib.config.RobotConfig.fromGUISettings();
+
+            com.pathplanner.lib.auto.AutoBuilder.configure(
+                () -> this.getState().Pose, // Pose supplier
+                this::resetPose, // Pose setter
+                () -> this.getState().Velocity, // ChassisVelocities supplier (robot relative)
+                (velocities, feedforwards) -> this.setControl(autoRequest.withVelocity(velocities)), // Drive robot relative
+                new com.pathplanner.lib.controllers.PPHolonomicDriveController(
+                    new com.pathplanner.lib.config.PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new com.pathplanner.lib.config.PIDConstants(5.0, 0.0, 0.0)  // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                    // Returns true if the alliance is red, false if blue or unknown.
+                    var alliance = org.wpilib.driverstation.internal.DriverStationBackend.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == org.wpilib.driverstation.Alliance.RED;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+            );
+        } catch (Exception e) {
+            org.wpilib.driverstation.internal.DriverStationBackend.reportError("Failed to load PathPlanner config", e.getStackTrace());
+        }
+    }
+
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 

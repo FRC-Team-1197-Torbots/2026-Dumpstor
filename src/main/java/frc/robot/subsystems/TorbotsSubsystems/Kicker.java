@@ -2,6 +2,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -25,10 +26,19 @@ public class Kicker extends SubsystemBase {
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+        // Basic current limits to prevent brownouts
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
+        commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
+        commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
         kicker1.getConfigurator().apply(commonConfig);
         kicker2.getConfigurator().apply(commonConfig);
 
         kicker2.setControl(new Follower(kicker1.getDeviceID(), MotorAlignmentValue.Opposed));
+
+        // Dashboard field for testing kicker feeding speeds live
+        SmartDashboard.putNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
     }
 
     public void setVoltage(double volts) {
@@ -41,5 +51,31 @@ public class Kicker extends SubsystemBase {
 
     public Command runVoltageCommand(double volts) {
         return this.run(() -> setVoltage(volts)).finallyDo(interrupted -> stop());
+    }
+
+    /**
+     * Feeds game pieces into the main shooter flywheels.
+     * This usually needs to be fast (8-12V) so the game piece doesn't lose momentum.
+     */
+    public Command feedShooterCommand() {
+        return runVoltageCommand(ShooterConstants.kKickerFeedVoltage);
+    }
+
+    /**
+     * Reverses the kicker to unjam game pieces.
+     */
+    public Command unjamCommand() {
+        return runVoltageCommand(ShooterConstants.kKickerUnjamVoltage);
+    }
+
+    /**
+     * Test command that reads voltage from SmartDashboard to tune 
+     * kicker feed speed live.
+     */
+    public Command testKickerSpeedCommand() {
+        return this.run(() -> {
+            double testVolts = SmartDashboard.getNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
+            setVoltage(testVolts);
+        }).finallyDo(interrupted -> stop());
     }
 }

@@ -45,8 +45,20 @@ public class Intake extends SubsystemBase {
         deployConfig.Slot0.kG = 0.0;
         deployConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
+        // Current limits for deploy to prevent breaking hard stops
+        deployConfig.CurrentLimits.SupplyCurrentLimit = 20.0;
+        deployConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        deployConfig.CurrentLimits.StatorCurrentLimit = 30.0;
+        deployConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        // Basic current limits to prevent brownouts
+        rollerConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
+        rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        rollerConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
+        rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         deploy1.getConfigurator().apply(deployConfig);
         deploy2.getConfigurator().apply(deployConfig);
@@ -58,20 +70,24 @@ public class Intake extends SubsystemBase {
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Setup SmartDashboard for live tuning
-        SmartDashboard.putNumber("Intake/Tune/kP", 0.0);
+        // A kP of 0.2 means 0.2 Volts applied per 1 rotation of error. 
+        SmartDashboard.putNumber("Intake/Tune/kP", 0.2);
         SmartDashboard.putNumber("Intake/Tune/kI", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kD", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kS", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kV", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kG", 0.0);
+        
+        // Dashboard field for testing roller speeds live
+        SmartDashboard.putNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
+        // Dashboard field for testing deploy position
+        SmartDashboard.putNumber("Intake/Test/TargetDeployRots", 0.0);
     }
 
     @Override
     public void periodic() {
         // Telemetry for tuning and debugging
         SmartDashboard.putNumber("Intake/Deploy Position (rots)", deploy1.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Deploy Velocity (rps)", deploy1.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Deploy Applied Volts", deploy1.getMotorVoltage().getValueAsDouble());
     }
 
     // ==========================================
@@ -97,6 +113,29 @@ public class Intake extends SubsystemBase {
         return this.run(() -> setDeployPosition(positionRots));
     }
 
+    private boolean isDeployed = false;
+
+    /**
+     * Toggles the intake deploy between stowed (0.0 rots) and deployed (kDeployTargetRots).
+     * Since we configured Stator Current Limits (30A), if the intake hits the hard stops 
+     * before reaching the exact rotations, the motor will safely stall and hold position 
+     * without burning out or breaking the mechanism.
+     */
+    public Command toggleDeployCommand() {
+        return this.runOnce(() -> {
+            isDeployed = !isDeployed;
+            if (isDeployed) {
+                setDeployPosition(IntakeConstants.kDeployTargetRots);
+            } else {
+                setDeployPosition(0.0);
+            }
+        });
+    }
+
+    public void zeroDeployEncoder() {
+        deploy1.setPosition(0.0);
+    }
+
     // ==========================================
     // ROLLER CONTROL
     // ==========================================
@@ -110,6 +149,29 @@ public class Intake extends SubsystemBase {
 
     public Command runRollersCommand(double volts) {
         return this.run(() -> setRollerVoltage(volts)).finallyDo(interrupted -> stopRollers());
+    }
+
+    /**
+     * Runs the rollers at a typical FRC intake speed.
+     * Often teams aim for a surface speed 2x-3x the robot's drivetrain speed (the "touch it, own it" principle).
+     */
+    public Command intakeGamePieceCommand() {
+        return runRollersCommand(IntakeConstants.kIntakeRollerVoltage);
+    }
+
+    public Command ejectGamePieceCommand() {
+        return runRollersCommand(IntakeConstants.kEjectRollerVoltage);
+    }
+
+    /**
+     * Test command that reads voltage from SmartDashboard to easily find the ideal 
+     * intake speed without redeploying code.
+     */
+    public Command testRollerSpeedCommand() {
+        return this.run(() -> {
+            double testVolts = SmartDashboard.getNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
+            setRollerVoltage(testVolts);
+        }).finallyDo(interrupted -> stopRollers());
     }
 
     public void stopAll() {
@@ -135,16 +197,5 @@ public class Intake extends SubsystemBase {
         slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         deploy1.getConfigurator().apply(slot0);
-    }
-
-    /**
-     * Generates a command to slowly ramp the deploy voltage to find kS (static friction)
-     * and kG (gravity for the rack).
-     */
-    public Command findKSCommand() {
-        return this.run(() -> {
-            double nextVolt = deploy1.getMotorVoltage().getValueAsDouble() + (0.1 * 0.02); // assumes 20ms loop
-            setDeployVoltage(nextVolt);
-        }).finallyDo(interrupted -> stopDeploy());
     }
 }
