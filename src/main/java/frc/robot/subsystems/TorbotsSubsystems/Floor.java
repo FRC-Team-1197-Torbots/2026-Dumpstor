@@ -2,6 +2,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -29,6 +30,9 @@ public class Floor extends SubsystemBase {
         floor2.getConfigurator().apply(commonConfig);
 
         floor2.setControl(new Follower(floor1.getDeviceID(), MotorAlignmentValue.Opposed));
+
+        // Dashboard field for testing floor feeding speeds live
+        SmartDashboard.putNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
     }
 
     public void setVoltage(double volts) {
@@ -41,5 +45,30 @@ public class Floor extends SubsystemBase {
 
     public Command runVoltageCommand(double volts) {
         return this.run(() -> setVoltage(volts)).finallyDo(interrupted -> stop());
+    }
+
+    /**
+     * Feeds game pieces into the shooter/kicker.
+     */
+    public Command feedShooterCommand() {
+        return runVoltageCommand(ShooterConstants.kFloorFeedVoltage);
+    }
+
+    /**
+     * Reverses the floor to unjam game pieces.
+     */
+    public Command unjamCommand() {
+        return runVoltageCommand(ShooterConstants.kFloorUnjamVoltage);
+    }
+
+    /**
+     * Test command that reads voltage from SmartDashboard to tune 
+     * floor feed speed live.
+     */
+    public Command testFloorSpeedCommand() {
+        return this.run(() -> {
+            double testVolts = SmartDashboard.getNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
+            setVoltage(testVolts);
+        }).finallyDo(interrupted -> stop());
     }
 }
