@@ -38,7 +38,7 @@ public class Drum extends SubsystemBase {
         // Slot 0 default gains on the master
         commonConfig.Slot0.kS = 4.25;
         commonConfig.Slot0.kV = 0.0;
-        commonConfig.Slot0.kP = 0.2;
+        commonConfig.Slot0.kP = 0.9;
         commonConfig.Slot0.kD = 0.0;
 
         // Flywheels take massive energy to spin up quickly. With 4 motors, a full unrestrained

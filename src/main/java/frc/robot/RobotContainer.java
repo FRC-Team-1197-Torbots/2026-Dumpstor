@@ -12,9 +12,8 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
-import org.wpilib.smartdashboard.SmartDashboard;
-
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
@@ -45,6 +44,8 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    // private ShootCommand shoot = new ShootCommand(drum, floor, kicker, ShooterConstants.IdleShooterSpeed);
+
     // private final org.wpilib.smartdashboard.SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
@@ -70,6 +71,8 @@ public class RobotContainer {
             )
         );
 
+        drum.setDefaultCommand(Commands.runOnce(()-> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
+
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();
@@ -77,10 +80,10 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> brake));
+        // joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> brake));
 
         // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick.button(3).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -92,22 +95,15 @@ public class RobotContainer {
         // joystick.button(0).whileTrue(kicker.feedShooterCommand());
         // joystick.button(1).whileTrue(kicker.unjamCommand());
 
-        // joystick.button(2).whileTrue(floor.feedShooterCommand());
-        // joystick.button(3).whileTrue(floor.unjamCommand());
+        // joystick.button(1).whileTrue(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
+        // joystick.button(2).whileTrue(floor.unjamCommand());
 
-        // joystick.button(0).whileTrue(intake.intakeGamePieceCommand());
-        // joystick.button(1).whileTrue(intake.ejectGamePieceCommand()); 
+        joystick.button(10).whileTrue(intake.intakeGamePieceCommand());
+        joystick.button(9).whileTrue(intake.ejectGamePieceCommand()); 
         
         joystick.button(0).whileTrue(intake.toggleDeployCommand());
 
-        // Hold B: Run open-loop 9.0V characterization test to find kV
-        // joystick.button(1).whileTrue(drum.runVoltageCharacterization(9.0)); //steay state RPS was 72
-
-        // Hold Y: Run closed-loop target test (e.g., 50.0 RPS) to evaluate kP response
-        joystick.button(2).whileTrue(
-            drum.run(() -> drum.setVelocityRPS(50.0))
-                .finallyDo(interrupted -> drum.stop())
-        );
+        joystick.axisGreaterThan(5, 0.1f).onTrue(kicker.feedShooterCommand());      
     }
 
 

@@ -31,8 +31,8 @@ public class ShooterConstants {
     // Kicker speeds
     // The kicker accelerates the game piece into the main flywheels. 
     // It should be fast to maintain shot velocity, usually 8V-12V.
-    public final static double kKickerFeedVoltage = -10.0;
+    public final static double kKickerFeedVoltage = -7.0;
     public final static double kKickerUnjamVoltage = 6.0;
 
-    public final static double IdleShooterSpeed = 2243/60;
+    public final static double IdleShooterSpeed = 4000/60;
 }
