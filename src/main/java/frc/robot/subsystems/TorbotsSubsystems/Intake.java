@@ -48,6 +48,12 @@ public class Intake extends SubsystemBase {
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
+        // Basic current limits to prevent brownouts
+        rollerConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
+        rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        rollerConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
+        rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
         deploy1.getConfigurator().apply(deployConfig);
         deploy2.getConfigurator().apply(deployConfig);
         roller1.getConfigurator().apply(rollerConfig);

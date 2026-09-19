@@ -26,6 +26,12 @@ public class Floor extends SubsystemBase {
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+        // Basic current limits to prevent brownouts
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
+        commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
+        commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
         floor1.getConfigurator().apply(commonConfig);
         floor2.getConfigurator().apply(commonConfig);
 
