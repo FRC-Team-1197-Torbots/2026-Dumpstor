@@ -63,6 +63,9 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Tune/kS", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kV", 0.0);
         SmartDashboard.putNumber("Intake/Tune/kG", 0.0);
+        
+        // Dashboard field for testing roller speeds live
+        SmartDashboard.putNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
     }
 
     @Override
@@ -109,6 +112,29 @@ public class Intake extends SubsystemBase {
 
     public Command runRollersCommand(double volts) {
         return this.run(() -> setRollerVoltage(volts)).finallyDo(interrupted -> stopRollers());
+    }
+
+    /**
+     * Runs the rollers at a typical FRC intake speed.
+     * Often teams aim for a surface speed 2x-3x the robot's drivetrain speed (the "touch it, own it" principle).
+     */
+    public Command intakeGamePieceCommand() {
+        return runRollersCommand(IntakeConstants.kIntakeRollerVoltage);
+    }
+
+    public Command ejectGamePieceCommand() {
+        return runRollersCommand(IntakeConstants.kEjectRollerVoltage);
+    }
+
+    /**
+     * Test command that reads voltage from SmartDashboard to easily find the ideal 
+     * intake speed without redeploying code.
+     */
+    public Command testRollerSpeedCommand() {
+        return this.run(() -> {
+            double testVolts = SmartDashboard.getNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
+            setRollerVoltage(testVolts);
+        }).finallyDo(interrupted -> stopRollers());
     }
 
     public void stopAll() {
