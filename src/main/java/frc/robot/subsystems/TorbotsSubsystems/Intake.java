@@ -135,19 +135,6 @@ public class Intake extends SubsystemBase {
         deploy1.setPosition(0.0);
     }
 
-    /**
-     * Reads the tuning gains (kP, kI, kD) from the dashboard, applies them to the motor,
-     * and runs the deploy to the 'TargetDeployRots' specified on the dashboard.
-     * Perfect for lab tuning.
-     */
-    public Command tuneDeployPositionCommand() {
-        return this.run(() -> {
-            applyDashboardGains();
-            double target = SmartDashboard.getNumber("Intake/Test/TargetDeployRots", 0.0);
-            setDeployPosition(target);
-        }).finallyDo(interrupted -> stopDeploy());
-    }
-
     // ==========================================
     // ROLLER CONTROL
     // ==========================================
@@ -209,16 +196,5 @@ public class Intake extends SubsystemBase {
         slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         deploy1.getConfigurator().apply(slot0);
-    }
-
-    /**
-     * Generates a command to slowly ramp the deploy voltage to find kS (static friction)
-     * and kG (gravity for the rack).
-     */
-    public Command findKSCommand() {
-        return this.run(() -> {
-            double nextVolt = deploy1.getMotorVoltage().getValueAsDouble() + (0.1 * 0.02); // assumes 20ms loop
-            setDeployVoltage(nextVolt);
-        }).finallyDo(interrupted -> stopDeploy());
     }
 }
