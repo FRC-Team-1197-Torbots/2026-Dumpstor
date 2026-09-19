@@ -13,8 +13,8 @@ public class ShooterConstants {
     public final static float KV = 0.0f;
     public final static float KD = 0.0f;
 
-    public final static int CANRange1 = 30;
-    public final static int CANRange2 = 31;
+    public final static int CANRange1 = 30; //in the main line
+    public final static int CANRange2 = 31; //in the hooper
 
     public final static int CANKick1 = 5;
     public final static int CANKick2 = 6;
