@@ -37,7 +37,7 @@ public class Intake extends SubsystemBase {
         deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         
         // Default PID for deploy (Linear / Rack & Pinion style)
-        deployConfig.Slot0.kP = 0.2;
+        deployConfig.Slot0.kP = IntakeConstants.KP;
         deployConfig.Slot0.kI = 0.0;
         deployConfig.Slot0.kD = 0.0;
         deployConfig.Slot0.kS = 0.0;
@@ -69,19 +69,8 @@ public class Intake extends SubsystemBase {
         deploy2.setControl(new Follower(deploy1.getDeviceID(), MotorAlignmentValue.Opposed));
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        // Setup SmartDashboard for live tuning
-        // A kP of 0.2 means 0.2 Volts applied per 1 rotation of error. 
-        SmartDashboard.putNumber("Intake/Tune/kP", 0.2);
-        SmartDashboard.putNumber("Intake/Tune/kI", 0.0);
-        SmartDashboard.putNumber("Intake/Tune/kD", 0.0);
-        SmartDashboard.putNumber("Intake/Tune/kS", 0.0);
-        SmartDashboard.putNumber("Intake/Tune/kV", 0.0);
-        SmartDashboard.putNumber("Intake/Tune/kG", 0.0);
-        
-        // Dashboard field for testing roller speeds live
-        SmartDashboard.putNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
-        // Dashboard field for testing deploy position
-        SmartDashboard.putNumber("Intake/Test/TargetDeployRots", 0.0);
+        //need to move to a smarter spot but for now
+        zeroDeployEncoder();
     }
 
     @Override

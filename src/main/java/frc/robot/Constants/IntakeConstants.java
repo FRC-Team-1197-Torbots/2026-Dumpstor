@@ -15,6 +15,8 @@ public class IntakeConstants {
     public final static double kIntakeRollerVoltage = -9.0; 
     public final static double kEjectRollerVoltage = 6.0;
 
+    public final static double KP = 1.2f; 
+
     // Deploy rotations
     public final static double kDeployTargetRots = 12.75;
 }
