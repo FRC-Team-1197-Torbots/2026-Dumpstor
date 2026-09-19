@@ -40,7 +40,6 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
-        setupDashboardTuning();
     }
 
     private void configureBindings() {
@@ -89,19 +88,6 @@ public class RobotContainer {
         joystick.westFace().onTrue(Commands.runOnce(drum::stop, drum));
     }
 
-    private void setupDashboardTuning() {
-        // Push an instant button to SmartDashboard/Shuffleboard to flash updated gains
-        SmartDashboard.putData("Drum/Apply Gains", Commands.runOnce(drum::applyDashboardGains, drum));
-
-        // Convenience button to calculate and push kV directly onto the dashboard
-        SmartDashboard.putData("Drum/Compute & Push kV (from 9V)", Commands.runOnce(() -> {
-            double currentRPS = drum.getVelocityRPS();
-            double currentKS = SmartDashboard.getNumber("Drum/Tune/kS", 0.0);
-            double calculatedKV = Drum.computeKV(9.0, currentRPS, currentKS);
-
-            SmartDashboard.putNumber("Drum/Tune/kV", calculatedKV);
-        }, drum));
-    }
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton

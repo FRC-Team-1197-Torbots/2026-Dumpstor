@@ -4,7 +4,6 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
 import org.wpilib.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -117,19 +116,5 @@ public class Drum extends SubsystemBase {
         if (steadyStateRPS <= 0.01)
             return 0.0;
         return (appliedVolts - measuredKS) / steadyStateRPS;
-    }
-
-    /**
-     * Reads Slot0 gains from SmartDashboard and pushes them directly to the master
-     * motor.
-     */
-    public void applyDashboardGains() {
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kS = SmartDashboard.getNumber("Drum/Tune/kS", 0.0);
-        slot0.kV = SmartDashboard.getNumber("Drum/Tune/kV", 0.0);
-        slot0.kP = SmartDashboard.getNumber("Drum/Tune/kP", 0.0);
-        slot0.kD = SmartDashboard.getNumber("Drum/Tune/kD", 0.0);
-
-        Right1.getConfigurator().apply(slot0);
     }
 }
