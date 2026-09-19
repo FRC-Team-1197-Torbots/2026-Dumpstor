@@ -26,8 +26,8 @@ public class Drum extends SubsystemBase {
     public Drum() {
         Right1 = new TalonFX(ShooterConstants.CANDrumRight1, CANBus.systemcore(ShooterConstants.CANLOOP));
         Right2 = new TalonFX(ShooterConstants.CANDrumRight2, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Left1 = new TalonFX(ShooterConstants.CANDrumRight1, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Left2 = new TalonFX(ShooterConstants.CANDrumRight2, CANBus.systemcore(ShooterConstants.CANLOOP));
+        Left1 = new TalonFX(ShooterConstants.CANDrumLeft1, CANBus.systemcore(ShooterConstants.CANLOOP));
+        Left2 = new TalonFX(ShooterConstants.CANDrumLeft2, CANBus.systemcore(ShooterConstants.CANLOOP));
 
         // General configuration applied to all 4 motors
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
@@ -38,6 +38,16 @@ public class Drum extends SubsystemBase {
         commonConfig.Slot0.kV = 0.0;
         commonConfig.Slot0.kP = 0.0;
         commonConfig.Slot0.kD = 0.0;
+
+        // Flywheels take massive energy to spin up quickly. With 4 motors, a full unrestrained
+        // spin-up would draw >200A and cause a brownout. We cap the supply limit to 35-40A per motor
+        // (140-160A total) which a healthy battery can handle for the 1-2 second spin-up.
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        
+        // Flywheels rarely stall, but if a game piece gets completely jammed, this protects the motors.
+        commonConfig.CurrentLimits.StatorCurrentLimit = 60.0;
+        commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         Right1.getConfigurator().apply(commonConfig);
         Right2.getConfigurator().apply(commonConfig);
