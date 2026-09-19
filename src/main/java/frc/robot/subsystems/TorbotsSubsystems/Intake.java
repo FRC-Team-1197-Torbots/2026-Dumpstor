@@ -3,9 +3,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
 import org.wpilib.smartdashboard.SmartDashboard;
-
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -27,6 +25,8 @@ public class Intake extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final PositionVoltage positionRequest = new PositionVoltage(0);
 
+    private boolean isDeployed = false;
+
     public Intake() {
         deploy1 = new TalonFX(IntakeConstants.Intake1, CANBus.systemcore(IntakeConstants.CANLOOP));
         deploy2 = new TalonFX(IntakeConstants.Intake2, CANBus.systemcore(IntakeConstants.CANLOOP));
@@ -37,7 +37,7 @@ public class Intake extends SubsystemBase {
         deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         
         // Default PID for deploy (Linear / Rack & Pinion style)
-        deployConfig.Slot0.kP = 0.25;
+        deployConfig.Slot0.kP = 0.2;
         deployConfig.Slot0.kI = 0.0;
         deployConfig.Slot0.kD = 0.0;
         deployConfig.Slot0.kS = 0.0;
@@ -113,7 +113,7 @@ public class Intake extends SubsystemBase {
         return this.run(() -> setDeployPosition(positionRots));
     }
 
-    private boolean isDeployed = false;
+    
 
     /**
      * Toggles the intake deploy between stowed (0.0 rots) and deployed (kDeployTargetRots).
@@ -161,41 +161,5 @@ public class Intake extends SubsystemBase {
 
     public Command ejectGamePieceCommand() {
         return runRollersCommand(IntakeConstants.kEjectRollerVoltage);
-    }
-
-    /**
-     * Test command that reads voltage from SmartDashboard to easily find the ideal 
-     * intake speed without redeploying code.
-     */
-    public Command testRollerSpeedCommand() {
-        return this.run(() -> {
-            double testVolts = SmartDashboard.getNumber("Intake/Test/RollerVolts", IntakeConstants.kIntakeRollerVoltage);
-            setRollerVoltage(testVolts);
-        }).finallyDo(interrupted -> stopRollers());
-    }
-
-    public void stopAll() {
-        stopDeploy();
-        stopRollers();
-    }
-
-    // ==========================================
-    // UTILITY TUNING COMMANDS & CALCULATIONS
-    // ==========================================
-
-    /**
-     * Reads Slot0 gains from SmartDashboard and pushes them directly to the master deploy motor.
-     */
-    public void applyDashboardGains() {
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kP = SmartDashboard.getNumber("Intake/Tune/kP", 0.0);
-        slot0.kI = SmartDashboard.getNumber("Intake/Tune/kI", 0.0);
-        slot0.kD = SmartDashboard.getNumber("Intake/Tune/kD", 0.0);
-        slot0.kS = SmartDashboard.getNumber("Intake/Tune/kS", 0.0);
-        slot0.kV = SmartDashboard.getNumber("Intake/Tune/kV", 0.0);
-        slot0.kG = SmartDashboard.getNumber("Intake/Tune/kG", 0.0);
-        slot0.GravityType = GravityTypeValue.Elevator_Static;
-
-        deploy1.getConfigurator().apply(slot0);
     }
 }

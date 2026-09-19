@@ -12,8 +12,8 @@ public class IntakeConstants {
 
     // FRC "Touch it, own it" principle: surface speed should be 2x-3x drivetrain speed.
     // Assuming a 2-inch roller on a Falcon/Kraken, 8V to 10V typically achieves this.
-    public final static double kIntakeRollerVoltage = 8.0; 
-    public final static double kEjectRollerVoltage = -6.0;
+    public final static double kIntakeRollerVoltage = -9.0; 
+    public final static double kEjectRollerVoltage = 6.0;
 
     // Deploy rotations
     public final static double kDeployTargetRots = 12.75;
