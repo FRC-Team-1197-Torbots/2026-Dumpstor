@@ -33,4 +33,6 @@ public class ShooterConstants {
     // It should be fast to maintain shot velocity, usually 8V-12V.
     public final static double kKickerFeedVoltage = -10.0;
     public final static double kKickerUnjamVoltage = 6.0;
+
+    public final static double IdleShooterSpeed = 2243/60;
 }
