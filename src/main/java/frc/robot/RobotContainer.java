@@ -104,10 +104,6 @@ public class RobotContainer {
         joystick.button(3).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        // ==========================================
-        // DRUM TUNING BINDINGS
-        // ==========================================
         
         // Hold A: Slowly ramp voltage by 0.1V/sec to find kS (releases to 0V)
         // joystick.button(0).whileTrue(kicker.feedShooterCommand());
