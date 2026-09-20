@@ -68,9 +68,6 @@ public class Intake extends SubsystemBase {
 
         deploy2.setControl(new Follower(deploy1.getDeviceID(), MotorAlignmentValue.Opposed));
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
-
-        //need to move to a smarter spot but for now
-        zeroDeployEncoder();
     }
 
     @Override
@@ -123,6 +120,18 @@ public class Intake extends SubsystemBase {
 
     public void zeroDeployEncoder() {
         deploy1.setPosition(0.0);
+    }
+
+    public void setDeployNeutralMode(NeutralModeValue mode) {
+        com.ctre.phoenix6.configs.MotorOutputConfigs motorOutput = new com.ctre.phoenix6.configs.MotorOutputConfigs();
+        
+        deploy1.getConfigurator().refresh(motorOutput);
+        motorOutput.NeutralMode = mode;
+        deploy1.getConfigurator().apply(motorOutput);
+
+        deploy2.getConfigurator().refresh(motorOutput);
+        motorOutput.NeutralMode = mode;
+        deploy2.getConfigurator().apply(motorOutput);
     }
 
     // ==========================================

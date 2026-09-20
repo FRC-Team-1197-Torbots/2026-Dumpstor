@@ -85,6 +85,19 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
+        // Intake deploy neutral mode: Brake when disabled, Coast when enabled
+        RobotModeTriggers.disabled().onTrue(
+            Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake)).ignoringDisable(true)
+        );
+        RobotModeTriggers.disabled().onFalse(
+            Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Coast)).ignoringDisable(true)
+        );
+
+        // Zero intake deploy encoder on auto init since we must be in starting configuration
+        RobotModeTriggers.autonomous().onTrue(
+            Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true)
+        );
+
         // joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> brake));
 
         // Reset the field-centric heading on left bumper press.
@@ -101,7 +114,9 @@ public class RobotContainer {
         // joystick.button(1).whileTrue(kicker.unjamCommand());
 
         // joystick.button(1).whileTrue(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
-        // joystick.button(2).whileTrue(floor.unjamCommand());
+        
+        // Manual override to zero the intake deploy encoder while testing or if placed incorrectly
+        joystick.button(2).onTrue(Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true));
 
         joystick.button(10).whileTrue(intake.intakeGamePieceCommand());
         joystick.button(9).whileTrue(intake.ejectGamePieceCommand()); 
