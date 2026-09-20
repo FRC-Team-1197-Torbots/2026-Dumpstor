@@ -12,6 +12,7 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
+import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
@@ -49,6 +50,10 @@ public class RobotContainer {
     // private final org.wpilib.smartdashboard.SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        // Register Named Commands for PathPlanner
+        NamedCommands.registerCommand("Shoot", shoot);
+        NamedCommands.registerCommand("Toggle Intake", intake.toggleDeployCommand());
+
         // Setup PathPlanner before generating the chooser
         drivetrain.setupPathPlanner();
         
