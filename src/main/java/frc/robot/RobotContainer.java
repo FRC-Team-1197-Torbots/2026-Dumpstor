@@ -44,7 +44,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // private ShootCommand shoot = new ShootCommand(drum, floor, kicker, ShooterConstants.IdleShooterSpeed);
+    private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.IdleShooterSpeed);
 
     // private final org.wpilib.smartdashboard.SendableChooser<Command> autoChooser;
 
@@ -103,7 +103,7 @@ public class RobotContainer {
         
         joystick.button(0).whileTrue(intake.toggleDeployCommand());
 
-        joystick.axisGreaterThan(5, 0.1f).onTrue(kicker.feedShooterCommand());      
+        joystick.axisGreaterThan(5, 0.1f).whileTrue(shoot);      
     }
 
 
