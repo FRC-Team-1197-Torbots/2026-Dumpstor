@@ -42,6 +42,7 @@ public class RobotContainer {
     private final Intake intake = new Intake();
     private final Kicker kicker = new Kicker();
     private final Floor floor = new Floor();
+    private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 

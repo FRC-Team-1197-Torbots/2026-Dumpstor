@@ -112,6 +112,11 @@ public class Telemetry {
         m_poseArray[2] = state.Pose.getRotation().getDegrees();
         fieldPub.set(m_poseArray);
 
+        // Simple SmartDashboard prints for easy vision debugging
+        SmartDashboard.putNumber("Robot Pose X", state.Pose.getX());
+        SmartDashboard.putNumber("Robot Pose Y", state.Pose.getY());
+        SmartDashboard.putNumber("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
+
         /* Telemeterize each module state to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {
             m_moduleSpeeds[i].setAngle(state.ModuleVelocities[i].angle);

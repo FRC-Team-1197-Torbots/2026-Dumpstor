@@ -95,7 +95,15 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
 
     @Override
     public void periodic() {
-        // Any periodic vision logging (e.g. to SmartDashboard) can go here.
-        // The actual pose integration will happen in the Drivetrain subsystem by polling getEstimatedGlobalPose()
+        // Simple SmartDashboard prints for debugging vision
+        for (int i = 1; i <= 4; i++) {
+            Optional<EstimatedRobotPose> poseOpt = getEstimatedGlobalPose(i);
+            if (poseOpt.isPresent()) {
+                org.wpilib.math.geometry.Pose2d pose2d = poseOpt.get().estimatedPose.toPose2d();
+                org.wpilib.smartdashboard.SmartDashboard.putNumber("Vision/Cam" + i + "_PoseX", pose2d.getX());
+                org.wpilib.smartdashboard.SmartDashboard.putNumber("Vision/Cam" + i + "_PoseY", pose2d.getY());
+                org.wpilib.smartdashboard.SmartDashboard.putNumber("Vision/Cam" + i + "_PoseRot", pose2d.getRotation().getDegrees());
+            }
+        }
     }
 }
