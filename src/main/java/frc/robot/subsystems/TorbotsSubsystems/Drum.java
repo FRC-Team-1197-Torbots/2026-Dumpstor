@@ -26,10 +26,10 @@ public class Drum extends SubsystemBase {
     private double testKS = 0.0f;
 
     public Drum() {
-        Right1 = new TalonFX(ShooterConstants.CANDrumRight1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
-        Right2 = new TalonFX(ShooterConstants.CANDrumRight2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
-        Left1 = new TalonFX(ShooterConstants.CANDrumLeft1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
-        Left2 = new TalonFX(ShooterConstants.CANDrumLeft2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        Right1 = new TalonFX(ShooterConstants.CANDrumRight1, new CANBus(ShooterConstants.CANLOOP));
+        Right2 = new TalonFX(ShooterConstants.CANDrumRight2, new CANBus(ShooterConstants.CANLOOP));
+        Left1 = new TalonFX(ShooterConstants.CANDrumLeft1, new CANBus(ShooterConstants.CANLOOP));
+        Left2 = new TalonFX(ShooterConstants.CANDrumLeft2, new CANBus(ShooterConstants.CANLOOP));
 
         // General configuration applied to all 4 motors
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();

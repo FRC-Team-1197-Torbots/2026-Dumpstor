@@ -2,8 +2,6 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.telemetry.Telemetry;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -20,8 +18,8 @@ public class Kicker extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Kicker() {
-        kicker1 = new TalonFX(ShooterConstants.CANKick1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
-        kicker2 = new TalonFX(ShooterConstants.CANKick2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        kicker1 = new TalonFX(ShooterConstants.CANKick1, new CANBus(ShooterConstants.CANLOOP));
+        kicker2 = new TalonFX(ShooterConstants.CANKick2, new CANBus(ShooterConstants.CANLOOP));
 
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

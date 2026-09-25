@@ -20,8 +20,8 @@ public class Floor extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Floor() {
-        floor1 = new TalonFX(ShooterConstants.CANFloor1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
-        floor2 = new TalonFX(ShooterConstants.CANFloor2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        floor1 = new TalonFX(ShooterConstants.CANFloor1, new CANBus(ShooterConstants.CANLOOP));
+        floor2 = new TalonFX(ShooterConstants.CANFloor2, new CANBus(ShooterConstants.CANLOOP));
 
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
