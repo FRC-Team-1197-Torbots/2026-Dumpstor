@@ -16,7 +16,6 @@ import org.wpilib.networktables.StructArrayPublisher;
 import org.wpilib.networktables.StructPublisher;
 import org.wpilib.smartdashboard.Mechanism2d;
 import org.wpilib.smartdashboard.MechanismLigament2d;
-import org.wpilib.smartdashboard.SmartDashboard;
 import org.wpilib.util.Color;
 import org.wpilib.util.Color8Bit;
 
@@ -34,7 +33,7 @@ public class Telemetry {
 
         /* Set up the module state Mechanism2d telemetry */
         for (int i = 0; i < 4; ++i) {
-            SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+            org.wpilib.telemetry.Telemetry.putData("Module " + i, m_moduleMechanisms[i]);
         }
     }
 
@@ -112,10 +111,10 @@ public class Telemetry {
         m_poseArray[2] = state.Pose.getRotation().getDegrees();
         fieldPub.set(m_poseArray);
 
-        // Simple SmartDashboard prints for easy vision debugging
-        SmartDashboard.putNumber("Robot Pose X", state.Pose.getX());
-        SmartDashboard.putNumber("Robot Pose Y", state.Pose.getY());
-        SmartDashboard.putNumber("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
+        // Simple Telemetry prints for easy vision debugging
+        org.wpilib.telemetry.Telemetry.putNumber("Robot Pose X", state.Pose.getX());
+        org.wpilib.telemetry.Telemetry.putNumber("Robot Pose Y", state.Pose.getY());
+        org.wpilib.telemetry.Telemetry.putNumber("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
 
         /* Telemeterize each module state to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {

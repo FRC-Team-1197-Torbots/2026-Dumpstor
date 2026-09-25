@@ -2,7 +2,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -61,17 +61,17 @@ public class Drum extends SubsystemBase {
         Left1.setControl(new Follower(Right1.getDeviceID(), MotorAlignmentValue.Opposed));
         Left2.setControl(new Follower(Right1.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        // SmartDashboard entries for live tuning
-        SmartDashboard.putNumber("Drum/Tune/kS", 0.0);
-        SmartDashboard.putNumber("Drum/Tune/kV", 0.0);
-        SmartDashboard.putNumber("Drum/Tune/kP", 0.0);
-        SmartDashboard.putNumber("Drum/Tune/kD", 0.0);
+        // Telemetry entries for live tuning
+        Telemetry.putNumber("Drum/Tune/kS", 0.0);
+        Telemetry.putNumber("Drum/Tune/kV", 0.0);
+        Telemetry.putNumber("Drum/Tune/kP", 0.0);
+        Telemetry.putNumber("Drum/Tune/kD", 0.0);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Drum/Velocity RPS", getVelocityRPS());
-        SmartDashboard.putNumber("Drum/Applied Volts", getMotorVoltage());
+        Telemetry.putNumber("Drum/Velocity RPS", getVelocityRPS());
+        Telemetry.putNumber("Drum/Applied Volts", getMotorVoltage());
     }
 
     /** Directly commands output voltage to the master motor. */
@@ -102,7 +102,7 @@ public class Drum extends SubsystemBase {
 
     /**
      * Slowly ramps open-loop voltage by 0.1V/sec.
-     * Note the voltage on SmartDashboard the moment the drum begins rolling.
+     * Note the voltage on Telemetry the moment the drum begins rolling.
      */
     public Command findKSCommand() {
         return this.run(() -> {

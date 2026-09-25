@@ -2,7 +2,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -38,7 +38,7 @@ public class Floor extends SubsystemBase {
         floor2.setControl(new Follower(floor1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Dashboard field for testing floor feeding speeds live
-        SmartDashboard.putNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
+        Telemetry.putNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
     }
 
     public void setVoltage(double volts) {
@@ -73,7 +73,7 @@ public class Floor extends SubsystemBase {
      */
     public Command testFloorSpeedCommand() {
         return this.run(() -> {
-            double testVolts = SmartDashboard.getNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
+            double testVolts = Telemetry.getNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
             setVoltage(testVolts);
         }).finallyDo(interrupted -> stop());
     }

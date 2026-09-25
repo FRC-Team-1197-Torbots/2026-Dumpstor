@@ -5,8 +5,8 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.wpilib.vision.apriltag.AprilTagFieldLayout;
-import org.wpilib.vision.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 
 import frc.robot.Constants.VisionConstants;
 
@@ -21,7 +21,7 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
     private final PhotonPoseEstimator poseEstimator3;
     private final PhotonPoseEstimator poseEstimator4;
 
-    private org.wpilib.vision.apriltag.AprilTagFieldLayout fieldLayout;
+    private edu.wpi.first.apriltag.AprilTagFieldLayout fieldLayout;
 
     public Vision() {
         // Initialize cameras
@@ -93,16 +93,15 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
         return poseEstimator.estimateCoprocMultiTagPose(results.get(results.size() - 1));
     }
 
-    @Override
     public void periodic() {
-        // Simple SmartDashboard prints for debugging vision
+        // Simple Telemetry prints for debugging vision
         for (int i = 1; i <= 4; i++) {
             Optional<EstimatedRobotPose> poseOpt = getEstimatedGlobalPose(i);
             if (poseOpt.isPresent()) {
                 org.wpilib.math.geometry.Pose2d pose2d = poseOpt.get().estimatedPose.toPose2d();
-                org.wpilib.smartdashboard.SmartDashboard.putNumber("Vision/Cam" + i + "_PoseX", pose2d.getX());
-                org.wpilib.smartdashboard.SmartDashboard.putNumber("Vision/Cam" + i + "_PoseY", pose2d.getY());
-                org.wpilib.smartdashboard.SmartDashboard.putNumber("Vision/Cam" + i + "_PoseRot", pose2d.getRotation().getDegrees());
+                org.wpilib.telemetry.Telemetry.putNumber("Vision/Cam" + i + "_PoseX", pose2d.getX());
+                org.wpilib.telemetry.Telemetry.putNumber("Vision/Cam" + i + "_PoseY", pose2d.getY());
+                org.wpilib.telemetry.Telemetry.putNumber("Vision/Cam" + i + "_PoseRot", pose2d.getRotation().getDegrees());
             }
         }
     }

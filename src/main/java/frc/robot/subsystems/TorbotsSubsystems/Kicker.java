@@ -2,7 +2,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -38,7 +38,7 @@ public class Kicker extends SubsystemBase {
         kicker2.setControl(new Follower(kicker1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Dashboard field for testing kicker feeding speeds live
-        SmartDashboard.putNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
+        Telemetry.putNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
     }
 
     public void setVoltage(double volts) {
@@ -74,7 +74,7 @@ public class Kicker extends SubsystemBase {
      */
     public Command testKickerSpeedCommand() {
         return this.run(() -> {
-            double testVolts = SmartDashboard.getNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
+            double testVolts = Telemetry.getNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
             setVoltage(testVolts);
         }).finallyDo(interrupted -> stop());
     }

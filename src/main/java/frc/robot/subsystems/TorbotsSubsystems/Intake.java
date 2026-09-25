@@ -2,7 +2,7 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -73,7 +73,7 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         // Telemetry for tuning and debugging
-        SmartDashboard.putNumber("Intake/Deploy Position (rots)", deploy1.getPosition().getValueAsDouble());
+        Telemetry.putNumber("Intake/Deploy Position (rots)", deploy1.getPosition().getValueAsDouble());
     }
 
     // ==========================================
