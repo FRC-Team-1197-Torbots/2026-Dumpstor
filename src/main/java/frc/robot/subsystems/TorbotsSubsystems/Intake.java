@@ -28,10 +28,10 @@ public class Intake extends SubsystemBase {
     private boolean isDeployed = false;
 
     public Intake() {
-        deploy1 = new TalonFX(IntakeConstants.Intake1, CANBus.systemcore(IntakeConstants.CANLOOP));
-        deploy2 = new TalonFX(IntakeConstants.Intake2, CANBus.systemcore(IntakeConstants.CANLOOP));
-        roller1 = new TalonFX(IntakeConstants.Roller1, CANBus.systemcore(IntakeConstants.CANLOOP));
-        roller2 = new TalonFX(IntakeConstants.Roller2, CANBus.systemcore(IntakeConstants.CANLOOP));
+        deploy1 = new TalonFX(IntakeConstants.Intake1, new CANBus(IntakeConstants.CANLOOP));
+        deploy2 = new TalonFX(IntakeConstants.Intake2, new CANBus(IntakeConstants.CANLOOP));
+        roller1 = new TalonFX(IntakeConstants.Roller1, new CANBus(IntakeConstants.CANLOOP));
+        roller2 = new TalonFX(IntakeConstants.Roller2, new CANBus(IntakeConstants.CANLOOP));
 
         TalonFXConfiguration deployConfig = new TalonFXConfiguration();
         deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -73,7 +73,7 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         // Telemetry for tuning and debugging
-        Telemetry.putNumber("Intake/Deploy Position (rots)", deploy1.getPosition().getValueAsDouble());
+        Telemetry.log("Intake/Deploy Position (rots)", deploy1.getPosition().getValueAsDouble());
     }
 
     // ==========================================

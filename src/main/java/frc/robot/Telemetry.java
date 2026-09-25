@@ -33,7 +33,7 @@ public class Telemetry {
 
         /* Set up the module state Mechanism2d telemetry */
         for (int i = 0; i < 4; ++i) {
-            org.wpilib.telemetry.Telemetry.putData("Module " + i, m_moduleMechanisms[i]);
+            org.wpilib.telemetry.Telemetry.log("Module " + i, m_moduleMechanisms[i]);
         }
     }
 
@@ -112,9 +112,9 @@ public class Telemetry {
         fieldPub.set(m_poseArray);
 
         // Simple Telemetry prints for easy vision debugging
-        org.wpilib.telemetry.Telemetry.putNumber("Robot Pose X", state.Pose.getX());
-        org.wpilib.telemetry.Telemetry.putNumber("Robot Pose Y", state.Pose.getY());
-        org.wpilib.telemetry.Telemetry.putNumber("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
+        org.wpilib.telemetry.Telemetry.log("Robot Pose X", state.Pose.getX());
+        org.wpilib.telemetry.Telemetry.log("Robot Pose Y", state.Pose.getY());
+        org.wpilib.telemetry.Telemetry.log("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
 
         /* Telemeterize each module state to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {

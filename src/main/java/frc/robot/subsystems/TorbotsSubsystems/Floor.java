@@ -20,8 +20,8 @@ public class Floor extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Floor() {
-        floor1 = new TalonFX(ShooterConstants.CANFloor1, CANBus.systemcore(ShooterConstants.CANLOOP));
-        floor2 = new TalonFX(ShooterConstants.CANFloor2, CANBus.systemcore(ShooterConstants.CANLOOP));
+        floor1 = new TalonFX(ShooterConstants.CANFloor1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        floor2 = new TalonFX(ShooterConstants.CANFloor2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
 
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -38,7 +38,7 @@ public class Floor extends SubsystemBase {
         floor2.setControl(new Follower(floor1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Dashboard field for testing floor feeding speeds live
-        Telemetry.putNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
+        // Dashboard field for testing floor feeding speeds live removed during API update
     }
 
     public void setVoltage(double volts) {
@@ -67,14 +67,5 @@ public class Floor extends SubsystemBase {
         return runVoltageCommand(ShooterConstants.kFloorUnjamVoltage);
     }
 
-    /**
-     * Test command that reads voltage from SmartDashboard to tune 
-     * floor feed speed live.
-     */
-    public Command testFloorSpeedCommand() {
-        return this.run(() -> {
-            double testVolts = Telemetry.getNumber("Shooter/Floor/TestVolts", ShooterConstants.kFloorFeedVoltage);
-            setVoltage(testVolts);
-        }).finallyDo(interrupted -> stop());
-    }
+
 }

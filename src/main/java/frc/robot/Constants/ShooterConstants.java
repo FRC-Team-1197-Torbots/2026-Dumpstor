@@ -2,7 +2,7 @@ package frc.robot.Constants;
 
 //shooter contains, drum, kicker, floor
 public class ShooterConstants {
-    public final static int CANLOOP = 1;
+    public final static String CANLOOP = "can_s1";
 
     public final static int CANDrumRight1 = 1;
     public final static int CANDrumRight2 = 2;
@@ -34,5 +34,5 @@ public class ShooterConstants {
     public final static double kKickerFeedVoltage = -7.0;
     public final static double kKickerUnjamVoltage = 6.0;
 
-    public final static double IdleShooterSpeed = 4000/60;
+    public final static double IdleShooterSpeed = 4000.0/60.0;
 }

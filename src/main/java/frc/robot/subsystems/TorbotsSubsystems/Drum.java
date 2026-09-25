@@ -26,10 +26,10 @@ public class Drum extends SubsystemBase {
     private double testKS = 0.0f;
 
     public Drum() {
-        Right1 = new TalonFX(ShooterConstants.CANDrumRight1, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Right2 = new TalonFX(ShooterConstants.CANDrumRight2, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Left1 = new TalonFX(ShooterConstants.CANDrumLeft1, CANBus.systemcore(ShooterConstants.CANLOOP));
-        Left2 = new TalonFX(ShooterConstants.CANDrumLeft2, CANBus.systemcore(ShooterConstants.CANLOOP));
+        Right1 = new TalonFX(ShooterConstants.CANDrumRight1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        Right2 = new TalonFX(ShooterConstants.CANDrumRight2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        Left1 = new TalonFX(ShooterConstants.CANDrumLeft1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        Left2 = new TalonFX(ShooterConstants.CANDrumLeft2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
 
         // General configuration applied to all 4 motors
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
@@ -62,16 +62,16 @@ public class Drum extends SubsystemBase {
         Left2.setControl(new Follower(Right1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Telemetry entries for live tuning
-        Telemetry.putNumber("Drum/Tune/kS", 0.0);
-        Telemetry.putNumber("Drum/Tune/kV", 0.0);
-        Telemetry.putNumber("Drum/Tune/kP", 0.0);
-        Telemetry.putNumber("Drum/Tune/kD", 0.0);
+        Telemetry.log("Drum/Tune/kS", 0.0);
+        Telemetry.log("Drum/Tune/kV", 0.0);
+        Telemetry.log("Drum/Tune/kP", 0.0);
+        Telemetry.log("Drum/Tune/kD", 0.0);
     }
 
     @Override
     public void periodic() {
-        Telemetry.putNumber("Drum/Velocity RPS", getVelocityRPS());
-        Telemetry.putNumber("Drum/Applied Volts", getMotorVoltage());
+        Telemetry.log("Drum/Velocity RPS", getVelocityRPS());
+        Telemetry.log("Drum/Applied Volts", getMotorVoltage());
     }
 
     /** Directly commands output voltage to the master motor. */

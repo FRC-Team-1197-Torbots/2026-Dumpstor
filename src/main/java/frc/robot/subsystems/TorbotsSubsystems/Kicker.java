@@ -20,8 +20,8 @@ public class Kicker extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Kicker() {
-        kicker1 = new TalonFX(ShooterConstants.CANKick1, CANBus.systemcore(ShooterConstants.CANLOOP));
-        kicker2 = new TalonFX(ShooterConstants.CANKick2, CANBus.systemcore(ShooterConstants.CANLOOP));
+        kicker1 = new TalonFX(ShooterConstants.CANKick1, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
+        kicker2 = new TalonFX(ShooterConstants.CANKick2, new CANBus(String.valueOf(ShooterConstants.CANLOOP)));
 
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -38,7 +38,7 @@ public class Kicker extends SubsystemBase {
         kicker2.setControl(new Follower(kicker1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Dashboard field for testing kicker feeding speeds live
-        Telemetry.putNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
+        // Dashboard field for testing kicker feeding speeds live removed during API update
     }
 
     public void setVoltage(double volts) {
@@ -68,14 +68,5 @@ public class Kicker extends SubsystemBase {
         return runVoltageCommand(ShooterConstants.kKickerUnjamVoltage);
     }
 
-    /**
-     * Test command that reads voltage from SmartDashboard to tune 
-     * kicker feed speed live.
-     */
-    public Command testKickerSpeedCommand() {
-        return this.run(() -> {
-            double testVolts = Telemetry.getNumber("Shooter/Kicker/TestVolts", ShooterConstants.kKickerFeedVoltage);
-            setVoltage(testVolts);
-        }).finallyDo(interrupted -> stop());
-    }
+
 }

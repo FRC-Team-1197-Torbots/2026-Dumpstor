@@ -5,8 +5,8 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
+import org.wpilib.fields.Field;
+import org.wpilib.fields.Fields;
 
 import frc.robot.Constants.VisionConstants;
 
@@ -21,7 +21,7 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
     private final PhotonPoseEstimator poseEstimator3;
     private final PhotonPoseEstimator poseEstimator4;
 
-    private edu.wpi.first.apriltag.AprilTagFieldLayout fieldLayout;
+    private Field fieldLayout;
 
     public Vision() {
         // Initialize cameras
@@ -32,7 +32,7 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
 
         // Load the field layout for the 2026 game using the updated v2027 method
         try {
-            fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+            fieldLayout = Fields.DEFAULT_FIELD.loadField();
         } catch (Exception e) {
             System.err.println("Failed to load AprilTag field layout! Vision pose estimation will not work.");
             e.printStackTrace();
@@ -99,9 +99,9 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
             Optional<EstimatedRobotPose> poseOpt = getEstimatedGlobalPose(i);
             if (poseOpt.isPresent()) {
                 org.wpilib.math.geometry.Pose2d pose2d = poseOpt.get().estimatedPose.toPose2d();
-                org.wpilib.telemetry.Telemetry.putNumber("Vision/Cam" + i + "_PoseX", pose2d.getX());
-                org.wpilib.telemetry.Telemetry.putNumber("Vision/Cam" + i + "_PoseY", pose2d.getY());
-                org.wpilib.telemetry.Telemetry.putNumber("Vision/Cam" + i + "_PoseRot", pose2d.getRotation().getDegrees());
+                org.wpilib.telemetry.Telemetry.log("Vision/Cam" + i + "_PoseX", pose2d.getX());
+                org.wpilib.telemetry.Telemetry.log("Vision/Cam" + i + "_PoseY", pose2d.getY());
+                org.wpilib.telemetry.Telemetry.log("Vision/Cam" + i + "_PoseRot", pose2d.getRotation().getDegrees());
             }
         }
     }

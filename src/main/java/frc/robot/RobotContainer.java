@@ -120,7 +120,7 @@ public class RobotContainer {
         
         joystick.button(0).whileTrue(intake.toggleDeployCommand());
 
-        joystick.axisGreaterThan(5, 0.1f).whileTrue(shoot);      
+        new org.wpilib.command2.button.Trigger(() -> joystick.getHID().getRawAxis(5) > 0.1).whileTrue(shoot);
     }
 
 
