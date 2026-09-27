@@ -31,12 +31,12 @@ public class ShootCommand extends Command {
         addRequirements(drum, floor, kicker, intake);
     }
 
+    private boolean isShooting = false;
+
     @Override
     public void initialize() {
-        // Start spinning the drum up to speed immediately
+        isShooting = false;
         drum.setVelocityRPS(targetRPS);
-
-        // Ensure feeders are stopped while we wait for spin-up
         floor.stop();
         kicker.stop();
         intake.stopRollers();
@@ -44,20 +44,15 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
-
-        // floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
-        // kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
-        // intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
-
-        // Keep commanding the drum to its target
         drum.setVelocityRPS(targetRPS);
 
-        // Check if the drum is up to speed
-        double currentRPS = drum.getVelocityRPS();
-        boolean isAtSpeed = Math.abs(currentRPS - targetRPS) <= RPS_TOLERANCE;
+        // If we reach speed, latch the isShooting boolean to true forever (until
+        // command ends)
+        if (Math.abs(drum.getVelocityRPS() - targetRPS) <= RPS_TOLERANCE) {
+            isShooting = true;
+        }
 
-        if (isAtSpeed) {
-            // Drum is ready, feed the game piece!
+        if (isShooting) {
             floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
             kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
             intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
