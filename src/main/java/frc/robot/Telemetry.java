@@ -116,6 +116,13 @@ public class Telemetry {
         org.wpilib.telemetry.Telemetry.log("Robot Pose Y", state.Pose.getY());
         org.wpilib.telemetry.Telemetry.log("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
 
+        // Distance to 2026 Hubs
+        double distToBlueHub = state.Pose.getTranslation().getDistance(frc.robot.Constants.FieldConstants.BlueTargetPose.getTranslation());
+        double distToRedHub = state.Pose.getTranslation().getDistance(frc.robot.Constants.FieldConstants.RedTargetPose.getTranslation());
+        
+        org.wpilib.telemetry.Telemetry.log("Distance To Blue Hub", distToBlueHub);
+        org.wpilib.telemetry.Telemetry.log("Distance To Red Hub", distToRedHub);
+
         /* Telemeterize each module state to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {
             m_moduleSpeeds[i].setAngle(state.ModuleVelocities[i].angle);

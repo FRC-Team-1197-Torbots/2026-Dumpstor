@@ -135,7 +135,7 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
                 swerve.addVisionMeasurement(
                     pose.estimatedPose.toPose2d(), 
                     pose.timestampSeconds,
-                    org.wpilib.math.VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)
+                    org.wpilib.math.linalg.VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)
                 );                
             }
         }        
