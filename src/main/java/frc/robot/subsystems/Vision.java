@@ -108,7 +108,35 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
             if(poseOpt.isPresent()) {
                 EstimatedRobotPose pose = poseOpt.get();
 
-                swerve.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);                
+                // Base standard deviations for X, Y, and Theta
+                double xyStdDev = 0.5;
+                double thetaStdDev = 0.5;
+
+                // Multi-tag estimates are significantly more reliable, so we trust them more
+                if (pose.targetsUsed.size() > 1) {
+                    xyStdDev = 0.1;
+                    thetaStdDev = 0.2;
+                }
+
+                // Calculate average distance to all tags used in this estimation
+                double totalDistance = 0.0;
+                for (var target : pose.targetsUsed) {
+                    totalDistance += target.getBestCameraToTarget().getTranslation().getNorm();
+                }
+                double avgDistance = totalDistance / pose.targetsUsed.size();
+
+                // Scale the standard deviation by the distance squared.
+                // As the robot gets further from the tag, the noise increases exponentially,
+                // so this forces the Kalman filter to trust odometry more at long ranges.
+                xyStdDev = xyStdDev * Math.pow(avgDistance, 2.0);
+                thetaStdDev = thetaStdDev * Math.pow(avgDistance, 2.0);
+
+                // Add the vision measurement with our dynamically calculated standard deviations
+                swerve.addVisionMeasurement(
+                    pose.estimatedPose.toPose2d(), 
+                    pose.timestampSeconds,
+                    org.wpilib.math.VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)
+                );                
             }
         }        
     }
