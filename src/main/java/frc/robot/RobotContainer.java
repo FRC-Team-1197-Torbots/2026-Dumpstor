@@ -12,6 +12,8 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
+import org.wpilib.driverstation.DualSenseController.Axis;
+
 import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.ShootCommand;
@@ -42,9 +44,10 @@ public class RobotContainer {
     private final Intake intake = new Intake();
     private final Kicker kicker = new Kicker();
     private final Floor floor = new Floor();
-    private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+    private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision(drivetrain);
 
     private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.IdleShooterSpeed);
 
@@ -120,7 +123,7 @@ public class RobotContainer {
         
         joystick.button(0).whileTrue(intake.toggleDeployCommand());
 
-        new org.wpilib.command2.button.Trigger(() -> joystick.getHID().getRawAxis(5) > 0.1).whileTrue(shoot);
+        joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f).whileTrue(shoot);
     }
 
 

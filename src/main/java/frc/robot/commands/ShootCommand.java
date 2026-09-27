@@ -15,9 +15,10 @@ public class ShootCommand extends Command {
     private final Intake intake;
     private final double targetRPS;
 
-    // Tolerance in RPS. Adjust this to be tighter or looser depending on how quickly 
+    // Tolerance in RPS. Adjust this to be tighter or looser depending on how
+    // quickly
     // the flywheels recover and how precise you need the shot.
-    private static final double RPS_TOLERANCE = 2.0; 
+    private static final double RPS_TOLERANCE = 2.0;
 
     public ShootCommand(Drum drum, Floor floor, Kicker kicker, Intake intake, double targetRPS) {
         this.drum = drum;
@@ -34,7 +35,7 @@ public class ShootCommand extends Command {
     public void initialize() {
         // Start spinning the drum up to speed immediately
         drum.setVelocityRPS(targetRPS);
-        
+
         // Ensure feeders are stopped while we wait for spin-up
         floor.stop();
         kicker.stop();
@@ -43,6 +44,11 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
+
+        floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+        kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
+        intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
+
         // Keep commanding the drum to its target
         drum.setVelocityRPS(targetRPS);
 
@@ -50,17 +56,17 @@ public class ShootCommand extends Command {
         double currentRPS = drum.getVelocityRPS();
         boolean isAtSpeed = Math.abs(currentRPS - targetRPS) <= RPS_TOLERANCE;
 
-        if (isAtSpeed) {
-            // Drum is ready, feed the game piece!
-            floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
-            kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
-            intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
-        } else {
-            // Drum is still spinning up or recovering from a shot, pause feeding
-            floor.stop();
-            kicker.stop();
-            intake.stopRollers();
-        }
+        // if (isAtSpeed) {
+        //     // Drum is ready, feed the game piece!
+        //     floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+        //     kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
+        //     intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
+        // } else {
+        //     // Drum is still spinning up or recovering from a shot, pause feeding
+        //     floor.stop();
+        //     kicker.stop();
+        //     intake.stopRollers();
+        // }
     }
 
     @Override

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -7,7 +9,6 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.wpilib.fields.Field;
 import org.wpilib.fields.Fields;
-
 import frc.robot.Constants.VisionConstants;
 
 public class Vision extends org.wpilib.command2.SubsystemBase {
@@ -23,7 +24,11 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
 
     private Field fieldLayout;
 
-    public Vision() {
+    private CommandSwerveDrivetrain swerve;
+
+    // private ArrayList<EstimatedRobotPose> poses = new ArrayList<>();
+
+    public Vision(CommandSwerveDrivetrain drive) {
         // Initialize cameras
         cam1 = new PhotonCamera(VisionConstants.CAMERA_1_NAME);
         cam2 = new PhotonCamera(VisionConstants.CAMERA_2_NAME);
@@ -43,6 +48,8 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
         poseEstimator2 = new PhotonPoseEstimator(fieldLayout, VisionConstants.ROBOT_TO_CAM_2);
         poseEstimator3 = new PhotonPoseEstimator(fieldLayout, VisionConstants.ROBOT_TO_CAM_3);
         poseEstimator4 = new PhotonPoseEstimator(fieldLayout, VisionConstants.ROBOT_TO_CAM_4);
+
+        swerve = drive;
     }
 
     /**
@@ -93,16 +100,15 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
         return poseEstimator.estimateCoprocMultiTagPose(results.get(results.size() - 1));
     }
 
-    public void periodic() {
-        // Simple Telemetry prints for debugging vision
-        for (int i = 1; i <= 4; i++) {
-            Optional<EstimatedRobotPose> poseOpt = getEstimatedGlobalPose(i);
-            if (poseOpt.isPresent()) {
-                org.wpilib.math.geometry.Pose2d pose2d = poseOpt.get().estimatedPose.toPose2d();
-                org.wpilib.telemetry.Telemetry.log("Vision/Cam" + i + "_PoseX", pose2d.getX());
-                org.wpilib.telemetry.Telemetry.log("Vision/Cam" + i + "_PoseY", pose2d.getY());
-                org.wpilib.telemetry.Telemetry.log("Vision/Cam" + i + "_PoseRot", pose2d.getRotation().getDegrees());
+    public void periodic() {        
+        // poses.clear();
+
+        for(int i = 0; i < 4; i++) {
+            if(getEstimatedGlobalPose(i).isPresent()) {
+                EstimatedRobotPose pose = getEstimatedGlobalPose(i).get();
+
+                swerve.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);                
             }
-        }
+        }        
     }
 }
