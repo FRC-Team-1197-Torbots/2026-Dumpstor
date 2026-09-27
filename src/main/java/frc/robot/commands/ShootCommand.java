@@ -45,9 +45,9 @@ public class ShootCommand extends Command {
     @Override
     public void execute() {
 
-        floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
-        kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
-        intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
+        // floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+        // kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
+        // intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
 
         // Keep commanding the drum to its target
         drum.setVelocityRPS(targetRPS);
@@ -56,17 +56,12 @@ public class ShootCommand extends Command {
         double currentRPS = drum.getVelocityRPS();
         boolean isAtSpeed = Math.abs(currentRPS - targetRPS) <= RPS_TOLERANCE;
 
-        // if (isAtSpeed) {
-        //     // Drum is ready, feed the game piece!
-        //     floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
-        //     kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
-        //     intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
-        // } else {
-        //     // Drum is still spinning up or recovering from a shot, pause feeding
-        //     floor.stop();
-        //     kicker.stop();
-        //     intake.stopRollers();
-        // }
+        if (isAtSpeed) {
+            // Drum is ready, feed the game piece!
+            floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+            kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
+            intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
+        }
     }
 
     @Override

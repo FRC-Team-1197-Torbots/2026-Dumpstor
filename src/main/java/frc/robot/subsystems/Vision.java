@@ -103,9 +103,10 @@ public class Vision extends org.wpilib.command2.SubsystemBase {
     public void periodic() {        
         // poses.clear();
 
-        for(int i = 0; i < 4; i++) {
-            if(getEstimatedGlobalPose(i).isPresent()) {
-                EstimatedRobotPose pose = getEstimatedGlobalPose(i).get();
+        for(int i = 1; i <= 4; i++) {
+            Optional<EstimatedRobotPose> poseOpt = getEstimatedGlobalPose(i);
+            if(poseOpt.isPresent()) {
+                EstimatedRobotPose pose = poseOpt.get();
 
                 swerve.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);                
             }
