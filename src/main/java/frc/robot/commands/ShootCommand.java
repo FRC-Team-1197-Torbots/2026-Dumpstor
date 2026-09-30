@@ -35,6 +35,7 @@ public class ShootCommand extends Command {
     private boolean isShooting = false;
     private final Timer agitationTimer = new Timer();
     private boolean isAgitating = false;
+    private final Timer timeoutTimer = new Timer();
 
     @Override
     public void initialize() {
@@ -42,6 +43,7 @@ public class ShootCommand extends Command {
         isAgitating = false;
         agitationTimer.stop();
         agitationTimer.reset();
+        timeoutTimer.restart();
         drum.setVelocityRPS(targetRPS);
         floor.stop();
         kicker.stop();
@@ -52,9 +54,9 @@ public class ShootCommand extends Command {
     public void execute() {
         drum.setVelocityRPS(targetRPS);
 
-        // If we reach speed, latch the isShooting boolean to true forever (until
+        // If we reach speed or 1 second passes, latch the isShooting boolean to true forever (until
         // command ends)
-        if (!isShooting && Math.abs(drum.getVelocityRPS() - targetRPS) <= RPS_TOLERANCE) {
+        if (!isShooting && (Math.abs(drum.getVelocityRPS() - targetRPS) <= RPS_TOLERANCE || timeoutTimer.hasElapsed(1.0))) {
             isShooting = true;
             agitationTimer.restart();
         }
