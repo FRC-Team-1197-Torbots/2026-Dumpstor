@@ -127,8 +127,8 @@ public class RobotContainer {
         var rightTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f);
         var leftTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.LEFT_TRIGGER, 0.1f);
 
-        rightTrigger.and(leftTrigger.negate()).whileTrue(shoot);
-        rightTrigger.and(leftTrigger).whileTrue(maxShoot);
+        rightTrigger.and(leftTrigger.negate()).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
+        rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
     }
 
 
