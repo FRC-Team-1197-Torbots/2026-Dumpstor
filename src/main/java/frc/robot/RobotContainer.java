@@ -47,7 +47,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision(drivetrain);
+    // private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision(drivetrain);
 
     private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.IdleShooterSpeed);
 

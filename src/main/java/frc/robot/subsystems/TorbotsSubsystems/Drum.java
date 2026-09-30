@@ -36,9 +36,9 @@ public class Drum extends SubsystemBase {
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         // Slot 0 default gains on the master
-        commonConfig.Slot0.kS = 4.25;
+        commonConfig.Slot0.kS = 7.5;
         commonConfig.Slot0.kV = 0.0;
-        commonConfig.Slot0.kP = 0.9;
+        commonConfig.Slot0.kP = 0.7;
         commonConfig.Slot0.kD = 0.0;
 
         // Flywheels take massive energy to spin up quickly. With 4 motors, a full unrestrained
@@ -48,7 +48,7 @@ public class Drum extends SubsystemBase {
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         
         // Flywheels rarely stall, but if a game piece gets completely jammed, this protects the motors.
-        commonConfig.CurrentLimits.StatorCurrentLimit = 60.0;
+        commonConfig.CurrentLimits.StatorCurrentLimit = 50.0;
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         Right1.getConfigurator().apply(commonConfig);
@@ -60,18 +60,15 @@ public class Drum extends SubsystemBase {
         Right2.setControl(new Follower(Right1.getDeviceID(), MotorAlignmentValue.Aligned));
         Left1.setControl(new Follower(Right1.getDeviceID(), MotorAlignmentValue.Opposed));
         Left2.setControl(new Follower(Right1.getDeviceID(), MotorAlignmentValue.Opposed));
-
-        // Telemetry entries for live tuning
-        Telemetry.log("Drum/Tune/kS", 0.0);
-        Telemetry.log("Drum/Tune/kV", 0.0);
-        Telemetry.log("Drum/Tune/kP", 0.0);
-        Telemetry.log("Drum/Tune/kD", 0.0);
     }
 
     @Override
     public void periodic() {
         Telemetry.log("Drum/Velocity RPS", getVelocityRPS());
-        Telemetry.log("Drum/Applied Volts", getMotorVoltage());
+        Telemetry.log("Drum/R1", Right1.getStatorCurrent().getValue());
+        Telemetry.log("Drum/R2", Right2.getStatorCurrent().getValue());
+        Telemetry.log("Drum/L1", Left1.getStatorCurrent().getValue());
+        Telemetry.log("Drum/L2", Left2.getStatorCurrent().getValue());
     }
 
     /** Directly commands output voltage to the master motor. */

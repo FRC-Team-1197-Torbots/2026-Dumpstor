@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import org.wpilib.telemetry.Telemetry;
 import frc.robot.Constants.ShooterConstants;
 
 public class Kicker extends SubsystemBase {
@@ -22,10 +23,10 @@ public class Kicker extends SubsystemBase {
         kicker2 = new TalonFX(ShooterConstants.CANKick2, new CANBus(ShooterConstants.CANLOOP));
 
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
-        commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         // Basic current limits to prevent brownouts
-        commonConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 25.0; // Amps drawn from the battery
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -34,9 +35,11 @@ public class Kicker extends SubsystemBase {
         kicker2.getConfigurator().apply(commonConfig);
 
         kicker2.setControl(new Follower(kicker1.getDeviceID(), MotorAlignmentValue.Opposed));
+    }
 
-        // Dashboard field for testing kicker feeding speeds live
-        // Dashboard field for testing kicker feeding speeds live removed during API update
+    public void periodic() {
+        Telemetry.log("Kicker/K1", kicker1.getStatorCurrent());
+        Telemetry.log("Kicker/K2", kicker2.getStatorCurrent());
     }
 
     public void setVoltage(double volts) {
@@ -65,6 +68,4 @@ public class Kicker extends SubsystemBase {
     public Command unjamCommand() {
         return runVoltageCommand(ShooterConstants.kKickerUnjamVoltage);
     }
-
-
 }

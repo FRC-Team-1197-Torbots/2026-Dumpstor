@@ -2,8 +2,6 @@ package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.telemetry.Telemetry;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -12,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants.ShooterConstants;
+import org.wpilib.telemetry.Telemetry;
 
 public class Floor extends SubsystemBase {
     private final TalonFX floor1;
@@ -27,7 +26,7 @@ public class Floor extends SubsystemBase {
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         // Basic current limits to prevent brownouts
-        commonConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0; // Amps drawn from the battery
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -36,9 +35,6 @@ public class Floor extends SubsystemBase {
         floor2.getConfigurator().apply(commonConfig);
 
         floor2.setControl(new Follower(floor1.getDeviceID(), MotorAlignmentValue.Opposed));
-
-        // Dashboard field for testing floor feeding speeds live
-        // Dashboard field for testing floor feeding speeds live removed during API update
     }
 
     public void setVoltage(double volts) {
@@ -67,5 +63,8 @@ public class Floor extends SubsystemBase {
         return runVoltageCommand(ShooterConstants.kFloorUnjamVoltage);
     }
 
-
+    public void periodic() {
+        Telemetry.log("Floor/F1", floor1.getStatorCurrent());
+        Telemetry.log("Floor/F2", floor2.getStatorCurrent());
+    }
 }
