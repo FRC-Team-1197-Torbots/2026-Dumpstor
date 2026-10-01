@@ -35,12 +35,14 @@ public class ShootCommand extends Command {
     private boolean isShooting = false;
     private final Timer agitationTimer = new Timer();
     private boolean isAgitating = false;
+    private boolean hasAgitatedOnce = false;
     private final Timer timeoutTimer = new Timer();
 
     @Override
     public void initialize() {
         isShooting = false;
         isAgitating = false;
+        hasAgitatedOnce = false;
         agitationTimer.stop();
         agitationTimer.reset();
         timeoutTimer.restart();
@@ -66,8 +68,10 @@ public class ShootCommand extends Command {
             kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
             intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
             
-            // Agitation logic: every 2.5 seconds, pull halfway in for 0.5 seconds
-            if (!isAgitating && agitationTimer.hasElapsed(2.5)) {
+            double waitTime = hasAgitatedOnce ? 0.75 : 2.5;
+            
+            // Agitation logic: wait initially 2.5s, then every 0.75s
+            if (!isAgitating && agitationTimer.hasElapsed(waitTime)) {
                 isAgitating = true;
                 agitationTimer.restart();
             }
@@ -79,6 +83,7 @@ public class ShootCommand extends Command {
                 // If it has reached the halfway point (with a 0.5 rotation tolerance), extend back out
                 if (intake.getDeployPosition() <= targetHalfway + 0.5) {
                     isAgitating = false;
+                    hasAgitatedOnce = true;
                     agitationTimer.restart();
                 }
             } else {
