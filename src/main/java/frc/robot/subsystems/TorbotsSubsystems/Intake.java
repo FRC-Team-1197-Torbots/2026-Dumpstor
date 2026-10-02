@@ -79,6 +79,10 @@ public class Intake extends SubsystemBase {
     // ==========================================
     // DEPLOY CONTROL
     // ==========================================
+    public double getDeployPosition() {
+        return deploy1.getPosition().getValueAsDouble();
+    }
+
     public void setDeployVoltage(double volts) {
         deploy1.setControl(voltageRequest.withOutput(volts));
     }

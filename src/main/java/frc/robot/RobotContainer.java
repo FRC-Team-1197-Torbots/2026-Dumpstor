@@ -50,6 +50,7 @@ public class RobotContainer {
     // private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision(drivetrain);
 
     private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.IdleShooterSpeed);
+    private final ShootCommand maxShoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.MaxShooterSpeed);
 
     // private final org.wpilib.smartdashboard.SendableChooser<Command> autoChooser;
 
@@ -123,7 +124,11 @@ public class RobotContainer {
         
         joystick.button(0).whileTrue(intake.toggleDeployCommand());
 
-        joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f).whileTrue(shoot);
+        var rightTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f);
+        var leftTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.LEFT_TRIGGER, 0.1f);
+
+        rightTrigger.and(leftTrigger.negate()).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
+        rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
     }
 
 
