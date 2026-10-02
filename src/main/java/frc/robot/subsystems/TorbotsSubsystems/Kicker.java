@@ -26,7 +26,7 @@ public class Kicker extends SubsystemBase {
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         // Basic current limits to prevent brownouts
-        commonConfig.CurrentLimits.SupplyCurrentLimit = 25.0; // Amps drawn from the battery
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0; // Amps drawn from the battery
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;

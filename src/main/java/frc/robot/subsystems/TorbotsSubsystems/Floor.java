@@ -26,9 +26,9 @@ public class Floor extends SubsystemBase {
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         // Basic current limits to prevent brownouts
-        commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0; // Amps drawn from the battery
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 20.0; // Amps drawn from the battery
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
+        commonConfig.CurrentLimits.StatorCurrentLimit = 20.0; // Amps applied to the motor
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         floor1.getConfigurator().apply(commonConfig);

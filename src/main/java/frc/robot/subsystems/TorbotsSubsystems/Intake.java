@@ -46,7 +46,7 @@ public class Intake extends SubsystemBase {
         deployConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         // Current limits for deploy to prevent breaking hard stops
-        deployConfig.CurrentLimits.SupplyCurrentLimit = 20.0;
+        deployConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
         deployConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         deployConfig.CurrentLimits.StatorCurrentLimit = 30.0;
         deployConfig.CurrentLimits.StatorCurrentLimitEnable = true;

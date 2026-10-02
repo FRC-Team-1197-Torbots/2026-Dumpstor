@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import org.wpilib.command2.Command;
-import edu.wpi.first.wpilibj.Timer;
+import org.wpilib.system.Timer;
 
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
@@ -64,7 +64,7 @@ public class ShootCommand extends Command {
         }
 
         if (isShooting) {
-            // floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+            floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
             kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
             intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
             

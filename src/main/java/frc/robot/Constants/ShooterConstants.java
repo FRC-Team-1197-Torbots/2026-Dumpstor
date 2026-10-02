@@ -25,7 +25,7 @@ public class ShooterConstants {
     // Floor/Hopper speeds
     // Feed speed should be fast enough to prevent gaps between game pieces 
     // but not so fast it overwhelms the kicker/shooter.
-    public final static double kFloorFeedVoltage = 9.0;
+    public final static double kFloorFeedVoltage = 4.0;
     public final static double kFloorUnjamVoltage = -6.0;
 
     // Kicker speeds
