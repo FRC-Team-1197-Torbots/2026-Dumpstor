@@ -122,6 +122,20 @@ public class Intake extends SubsystemBase {
         });
     }
 
+    public Command deployIntakeCommand() {
+        return this.runOnce(() -> {
+            isDeployed = true;
+            setDeployPosition(IntakeConstants.kDeployTargetRots);
+        });
+    }
+
+    public Command retractIntakeCommand() {
+        return this.runOnce(() -> {
+            isDeployed = false;
+            setDeployPosition(0.0);
+        });
+    }
+
     public void zeroDeployEncoder() {
         deploy1.setPosition(0.0);
     }
