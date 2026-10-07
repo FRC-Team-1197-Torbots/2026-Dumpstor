@@ -66,7 +66,6 @@ public class RobotContainer {
 
         // Build an auto chooser from the autos configured in PathPlanner GUI
         autoChooser = com.pathplanner.lib.auto.AutoBuilder.buildAutoChooser("Alpha 7");
-        org.wpilib.telemetry.Telemetry.log("Auto Mode", autoChooser);
     }
 
     private void configureBindings() {

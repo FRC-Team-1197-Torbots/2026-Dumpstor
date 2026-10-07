@@ -38,8 +38,8 @@ public class Kicker extends SubsystemBase {
     }
 
     public void periodic() {
-        Telemetry.log("Kicker/K1", kicker1.getStatorCurrent());
-        Telemetry.log("Kicker/K2", kicker2.getStatorCurrent());
+        Telemetry.log("Kicker/K1 Current", kicker1.getStatorCurrent());
+        Telemetry.log("Kicker/K2 Current", kicker2.getStatorCurrent());
     }
 
     public void setVoltage(double volts) {
