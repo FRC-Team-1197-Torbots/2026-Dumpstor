@@ -28,7 +28,7 @@ public class Kicker extends SubsystemBase {
         // Basic current limits to prevent brownouts
         commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0; // Amps drawn from the battery
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        commonConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
+        commonConfig.CurrentLimits.StatorCurrentLimit = 50.0; // Amps applied to the motor
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         kicker1.getConfigurator().apply(commonConfig);

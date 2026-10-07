@@ -63,7 +63,7 @@ public class ShootCommand extends Command {
         }
 
         if (isShooting) {
-            floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+            // floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
             kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
             intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
             
