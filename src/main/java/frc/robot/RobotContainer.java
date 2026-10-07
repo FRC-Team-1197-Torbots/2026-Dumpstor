@@ -5,15 +5,12 @@
 package frc.robot;
 
 import static org.wpilib.units.Units.*;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
-import org.wpilib.driverstation.DualSenseController.Axis;
-
 import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.ShootCommand;
@@ -49,7 +46,7 @@ public class RobotContainer {
 
     // private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision(drivetrain);
 
-    private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.IdleShooterSpeed);
+    private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.LowShooterSpeed);
     private final ShootCommand maxShoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.MaxShooterSpeed);
 
     // private final org.wpilib.smartdashboard.SendableChooser<Command> autoChooser;
@@ -91,12 +88,12 @@ public class RobotContainer {
         );
 
         // Intake deploy neutral mode: Brake when disabled, Coast when enabled
-        RobotModeTriggers.disabled().onTrue(
-            Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake)).ignoringDisable(true)
-        );
-        RobotModeTriggers.disabled().onFalse(
-            Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Coast)).ignoringDisable(true)
-        );
+        // RobotModeTriggers.disabled().onTrue(
+        //     Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake)).ignoringDisable(true)
+        // );
+        // RobotModeTriggers.disabled().onFalse(
+        //     Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Coast)).ignoringDisable(true)
+        // );
 
         // Zero intake deploy encoder on auto init since we must be in starting configuration
         RobotModeTriggers.autonomous().onTrue(

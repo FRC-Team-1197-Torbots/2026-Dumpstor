@@ -68,7 +68,7 @@ public class ShootCommand extends Command {
             kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
             intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
             
-            double waitTime = hasAgitatedOnce ? 0.75 : 2.5;
+            double waitTime = hasAgitatedOnce ? 0.75 : 1.5;
             
             // Agitation logic: wait initially 2.5s, then every 0.75s
             if (!isAgitating && agitationTimer.hasElapsed(waitTime)) {
