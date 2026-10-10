@@ -2,6 +2,8 @@ package frc.robot.commands;
 
 import org.wpilib.command2.Command;
 import org.wpilib.system.Timer;
+
+import frc.robot.Telemetry;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
 import frc.robot.subsystems.TorbotsSubsystems.Floor;
@@ -46,11 +48,14 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
-        drum.setVelocityRPS(targetRPS);
+        // drum.setVelocityRPS(targetRPS);
+
+        org.wpilib.telemetry.Telemetry.log("Auto/isShooting", isShooting);
+        org.wpilib.telemetry.Telemetry.log("Auto/TargetRPS", targetRPS);
 
         // If we reach speed or 1 second passes, latch the isShooting boolean to true forever (until
         // command ends)
-        if (!isShooting && (Math.abs(drum.getVelocityRPS() - targetRPS) <= RPS_TOLERANCE || timeoutTimer.hasElapsed(1.0))) {
+        if (!isShooting && (Math.abs(drum.getVelocityRPS() - targetRPS) <= RPS_TOLERANCE)) { //|| timeoutTimer.hasElapsed(1.0))) {
             isShooting = true;
         }
 

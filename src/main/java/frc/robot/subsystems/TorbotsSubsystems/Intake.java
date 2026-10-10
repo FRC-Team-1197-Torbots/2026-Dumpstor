@@ -165,7 +165,7 @@ public class Intake extends SubsystemBase {
      */
     public Command squareIntakeCommand() {
         return this.run(() -> {
-            setDeployVoltage(2.5); // Gently drive forwards into extended hard stop
+            setDeployVoltage(6); // Gently drive forwards into extended hard stop
         }).withTimeout(0.75) // Wait for both sides to hit and stall
         .andThen(() -> {
             stopDeploy();
