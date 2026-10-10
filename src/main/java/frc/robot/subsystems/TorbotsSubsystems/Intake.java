@@ -160,17 +160,18 @@ public class Intake extends SubsystemBase {
     }
 
     /**
-     * Drives both sides of the intake gently into the retract hard stop 
-     * to square the mechanism, then zeroes the encoders.
+     * Drives both sides of the intake gently into the extended hard stop 
+     * to square the mechanism, then sets the encoders to the max extension.
      */
     public Command squareIntakeCommand() {
         return this.run(() -> {
-            setDeployVoltage(-2.5); // Gently drive backwards into hard stop
+            setDeployVoltage(2.5); // Gently drive forwards into extended hard stop
         }).withTimeout(0.75) // Wait for both sides to hit and stall
         .andThen(() -> {
             stopDeploy();
-            zeroDeployEncoder();
-            isDeployed = false;
+            deploy1.setPosition(IntakeConstants.kDeployTargetRots);
+            deploy2.setPosition(IntakeConstants.kDeployTargetRots);
+            isDeployed = true;
         });
     }
 
