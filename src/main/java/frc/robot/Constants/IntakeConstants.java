@@ -14,6 +14,8 @@ public class IntakeConstants {
     // Assuming a 2-inch roller on a Falcon/Kraken, 8V to 10V typically achieves this.
     public final static double kIntakeRollerVoltage = -9.0; 
     public final static double kEjectRollerVoltage = 6.0;
+    public final static double kSlowIntakeVoltage = -4.0;
+    public final static double kPulseReverseVoltage = 10.0;
 
     public final static double KP = 1.2f; 
 

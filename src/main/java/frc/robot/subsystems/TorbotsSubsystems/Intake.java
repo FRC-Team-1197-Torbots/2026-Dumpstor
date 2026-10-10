@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -59,13 +60,17 @@ public class Intake extends SubsystemBase {
         rollerConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
         rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
+        deployConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         deploy1.getConfigurator().apply(deployConfig);
+
+        // Invert deploy2 so they can be driven with the same position request
+        deployConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         deploy2.getConfigurator().apply(deployConfig);
 
         roller1.getConfigurator().apply(rollerConfig);
         roller2.getConfigurator().apply(rollerConfig);
 
-        deploy2.setControl(new Follower(deploy1.getDeviceID(), MotorAlignmentValue.Opposed));
+        // roller2 still follows roller1
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
@@ -84,14 +89,17 @@ public class Intake extends SubsystemBase {
 
     public void setDeployVoltage(double volts) {
         deploy1.setControl(voltageRequest.withOutput(volts));
+        deploy2.setControl(voltageRequest.withOutput(volts));
     }
 
     public void setDeployPosition(double positionRots) {
         deploy1.setControl(positionRequest.withPosition(positionRots));
+        deploy2.setControl(positionRequest.withPosition(positionRots));
     }
 
     public void stopDeploy() {
         deploy1.stopMotor();
+        deploy2.stopMotor();
     }
 
     public Command runDeployCommand(double volts) {
@@ -135,8 +143,35 @@ public class Intake extends SubsystemBase {
         });
     }
 
+    /**
+     * Moves the intake halfway in while held, and back out when released.
+     * Does NOT require the Intake subsystem so it can be used while shooting.
+     */
+    public Command operatorAgitateCommand() {
+        return org.wpilib.command2.Commands.runEnd(
+            () -> setDeployPosition(IntakeConstants.kDeployTargetRots / 2.0),
+            () -> setDeployPosition(IntakeConstants.kDeployTargetRots)
+        );
+    }
+
     public void zeroDeployEncoder() {
         deploy1.setPosition(0.0);
+        deploy2.setPosition(0.0);
+    }
+
+    /**
+     * Drives both sides of the intake gently into the retract hard stop 
+     * to square the mechanism, then zeroes the encoders.
+     */
+    public Command squareIntakeCommand() {
+        return this.run(() -> {
+            setDeployVoltage(-2.5); // Gently drive backwards into hard stop
+        }).withTimeout(0.75) // Wait for both sides to hit and stall
+        .andThen(() -> {
+            stopDeploy();
+            zeroDeployEncoder();
+            isDeployed = false;
+        });
     }
 
     public void setDeployNeutralMode(NeutralModeValue mode) {
@@ -176,5 +211,26 @@ public class Intake extends SubsystemBase {
 
     public Command ejectGamePieceCommand() {
         return runRollersCommand(IntakeConstants.kEjectRollerVoltage);
+    }
+
+    /**
+     * Pulses the intake rollers rapidly between reverse and off to shake loose 
+     * a jammed piece without fully ejecting it out of the robot's area.
+     */
+    public Command pulseIntakeCommand() {
+        return org.wpilib.command2.Commands.sequence(
+            runRollersCommand(IntakeConstants.kPulseReverseVoltage).withTimeout(0.2),
+            org.wpilib.command2.Commands.waitSeconds(0.1),
+            runRollersCommand(IntakeConstants.kPulseReverseVoltage).withTimeout(0.2),
+            org.wpilib.command2.Commands.waitSeconds(0.1)
+        ).repeatedly();
+    }
+
+    /**
+     * Slowly runs the intake forward in case the piece is slipping and needs 
+     * to grab gently without binding up.
+     */
+    public Command slowIntakeCommand() {
+        return runRollersCommand(IntakeConstants.kSlowIntakeVoltage);
     }
 }
