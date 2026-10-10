@@ -131,19 +131,12 @@ public class RobotContainer {
         rightTrigger.and(leftTrigger.negate()).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
         rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
 
-        // Operator bindings for Intake Unjamming
-        // Button A (1) runs standard eject to push a game piece out
-        // operatorJoystick.button(1).whileTrue(intake.ejectGamePieceCommand());
-        // Button B (2) pulses the intake to shake a stuck piece loose
-        // operatorJoystick.button(2).whileTrue(intake.pulseIntakeCommand());
-        // Button X (3) runs rollers forward slowly in case the piece is slipping
-        // operatorJoystick.button(3).whileTrue(intake.slowIntakeCommand());
-        // Button Y (4) squares the intake against the hard stop to fix skewing
-        operatorJoystick.button(4).onTrue(intake.squareIntakeCommand());
+        // Button A (4) squares the intake against the hard stop to fix skewing
+        operatorJoystick.button(1).onTrue(intake.squareIntakeCommand());
         // Left Bumper (5) manually agitates the intake halfway (useful during shooting)
         operatorJoystick.button(5).whileTrue(intake.operatorAgitateCommand());
-        // Right Bumper (6) retracts the intake in case the jam is against the bumper
-        operatorJoystick.button(6).onTrue(intake.retractIntakeCommand());
+        // Button B (6) retracts the intake in case the jam is against the bumper
+        operatorJoystick.button(2).onTrue(intake.retractIntakeCommand());
     }
 
 
