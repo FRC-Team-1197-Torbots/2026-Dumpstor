@@ -144,12 +144,60 @@ public class Intake extends SubsystemBase {
     }
 
     /**
+     * Non-blocking command to agitate the intake deploy back and forth between
+     * deployed and halfway positions for a specified duration in seconds.
+     * Guaranteed to finish after durationSeconds and return the intake to fully deployed.
+     * Perfect for sequential autonomous routines.
+     *
+     * @param durationSeconds Total time to agitate in seconds
+     * @return Autonomous-safe non-blocking Command
+     */
+    public Command agitateCommand(double durationSeconds) {
+        org.wpilib.system.Timer timer = new org.wpilib.system.Timer();
+        return this.run(() -> {
+            boolean agitateIn = ((int) (timer.get() / IntakeConstants.kAgitateCycleTime)) % 2 == 1;
+            if (agitateIn) {
+                setDeployPosition(IntakeConstants.kAgitateTargetRots);
+            } else {
+                setDeployPosition(IntakeConstants.kDeployTargetRots);
+            }
+        })
+        .beforeStarting(timer::restart)
+        .finallyDo(interrupted -> setDeployPosition(IntakeConstants.kDeployTargetRots))
+        .withTimeout(durationSeconds);
+    }
+
+    /**
+     * Agitates the intake deploy for the default auto duration (kDefaultAgitateDurationSeconds).
+     */
+    public Command agitateCommand() {
+        return agitateCommand(IntakeConstants.kDefaultAgitateDurationSeconds);
+    }
+
+    /**
+     * Continuously agitates the intake deploy until interrupted or canceled.
+     */
+    public Command continuousAgitateCommand() {
+        org.wpilib.system.Timer timer = new org.wpilib.system.Timer();
+        return this.run(() -> {
+            boolean agitateIn = ((int) (timer.get() / IntakeConstants.kAgitateCycleTime)) % 2 == 1;
+            if (agitateIn) {
+                setDeployPosition(IntakeConstants.kAgitateTargetRots);
+            } else {
+                setDeployPosition(IntakeConstants.kDeployTargetRots);
+            }
+        })
+        .beforeStarting(timer::restart)
+        .finallyDo(interrupted -> setDeployPosition(IntakeConstants.kDeployTargetRots));
+    }
+
+    /**
      * Moves the intake halfway in while held, and back out when released.
-     * Does NOT require the Intake subsystem so it can be used while shooting.
+     * Does NOT require the Intake subsystem so it can be held concurrently in teleop.
      */
     public Command operatorAgitateCommand() {
         return org.wpilib.command2.Commands.runEnd(
-            () -> setDeployPosition(IntakeConstants.kDeployTargetRots / 2.0),
+            () -> setDeployPosition(IntakeConstants.kAgitateTargetRots),
             () -> setDeployPosition(IntakeConstants.kDeployTargetRots)
         );
     }
@@ -225,6 +273,13 @@ public class Intake extends SubsystemBase {
             runRollersCommand(IntakeConstants.kPulseReverseVoltage).withTimeout(0.2),
             org.wpilib.command2.Commands.waitSeconds(0.1)
         ).repeatedly();
+    }
+
+    /**
+     * Pulses the intake rollers repeatedly for a fixed duration (safe for autonomous).
+     */
+    public Command pulseIntakeCommand(double durationSeconds) {
+        return pulseIntakeCommand().withTimeout(durationSeconds);
     }
 
     /**

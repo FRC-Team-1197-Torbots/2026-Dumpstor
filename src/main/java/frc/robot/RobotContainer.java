@@ -7,12 +7,12 @@ package frc.robot;
 import static org.wpilib.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.RobotModeTriggers;
 import org.wpilib.tunable.Tunables;
-import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
@@ -55,7 +55,9 @@ public class RobotContainer {
 
     public RobotContainer() {
         // Register Named Commands for PathPlanner
-        NamedCommands.registerCommand("Shoot", AutoShoot());
+        NamedCommands.registerCommand("Shoot", createAutoShootCommand());
+        NamedCommands.registerCommand("Shoot With Agitation", createAutoShootCommand());
+        NamedCommands.registerCommand("Agitate Intake", intake.agitateCommand());
         NamedCommands.registerCommand("Toggle Intake", intake.toggleDeployCommand());
         NamedCommands.registerCommand("Deploy Intake", intake.deployIntakeCommand());
         NamedCommands.registerCommand("Retract Intake", intake.retractIntakeCommand());
@@ -71,9 +73,16 @@ public class RobotContainer {
         Tunables.publish("Auto/AutoSelection", autoChooser);
     }
 
-    private Command AutoShoot() {
-        shoot.initialize();
-        return shoot;
+    public Command createAutoShootCommand() {
+        return new ShootCommand(
+            drum,
+            floor,
+            kicker,
+            intake,
+            ShooterConstants.LowShooterSpeed,
+            ShooterConstants.kAutoShootDurationSeconds,
+            true // Automatically agitate intake while shooting in auto
+        );
     }
 
     private void configureBindings() {
@@ -88,7 +97,7 @@ public class RobotContainer {
             )
         );
 
-        drum.setDefaultCommand(Commands.runOnce(()-> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
+        drum.setDefaultCommand(drum.run(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed)));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
