@@ -36,7 +36,7 @@ public class ShooterConstants {
 
     public final static double IdleShooterSpeed = 3000.0/60.0;
     public final static double LowShooterSpeed = 4000.0/60.0;
-    public final static double MaxShooterSpeed = 5500.0/60.0;
+    public final static double MaxShooterSpeed = 4800.0/60.0;
     
 }
 

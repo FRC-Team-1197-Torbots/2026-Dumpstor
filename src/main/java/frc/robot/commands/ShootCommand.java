@@ -2,8 +2,6 @@ package frc.robot.commands;
 
 import org.wpilib.command2.Command;
 import org.wpilib.system.Timer;
-
-import frc.robot.Telemetry;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
 import frc.robot.subsystems.TorbotsSubsystems.Floor;
@@ -64,6 +62,7 @@ public class ShootCommand extends Command {
             kicker.setVoltage(ShooterConstants.kKickerFeedVoltage);
             // Just feed the shooter using rollers
             intake.setRollerVoltage(frc.robot.Constants.IntakeConstants.kIntakeRollerVoltage);
+            // intake.setDeployPosition(0.0);
         }
     }
 
