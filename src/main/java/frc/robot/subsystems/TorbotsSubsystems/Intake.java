@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
         roller2 = new TalonFX(IntakeConstants.Roller2, new CANBus(IntakeConstants.CANLOOP));
 
         TalonFXConfiguration deployConfig = new TalonFXConfiguration();
-        deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         
         // Default PID for deploy (Linear / Rack & Pinion style)
         deployConfig.Slot0.kP = IntakeConstants.KP;
@@ -133,6 +133,7 @@ public class Intake extends SubsystemBase {
         return this.runOnce(() -> {
             isDeployed = true;
             setDeployPosition(IntakeConstants.kDeployTargetRots);
+            setRollerVoltage(IntakeConstants.kIntakeRollerVoltage);
         });
     }
 
