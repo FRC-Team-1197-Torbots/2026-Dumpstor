@@ -97,13 +97,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // Intake deploy neutral mode: Brake when disabled, Coast when enabled
-        // RobotModeTriggers.disabled().onTrue(
-        //     Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake)).ignoringDisable(true)
-        // );
-        // RobotModeTriggers.disabled().onFalse(
-        //     Commands.runOnce(() -> intake.setDeployNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Coast)).ignoringDisable(true)
-        // );
+        // Intake deploy neutral mode (Brake when disabled, Coast when enabled) is configured in Intake.java
 
         // Zero intake deploy encoder on auto init since we must be in starting configuration
         RobotModeTriggers.autonomous().onTrue(

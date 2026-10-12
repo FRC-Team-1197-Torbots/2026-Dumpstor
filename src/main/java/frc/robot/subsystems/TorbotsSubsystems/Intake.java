@@ -1,7 +1,9 @@
 package frc.robot.subsystems.TorbotsSubsystems;
 
 import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.button.RobotModeTriggers;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -34,7 +36,7 @@ public class Intake extends SubsystemBase {
         roller2 = new TalonFX(IntakeConstants.Roller2, new CANBus(IntakeConstants.CANLOOP));
 
         TalonFXConfiguration deployConfig = new TalonFXConfiguration();
-        deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         
         // Default PID for deploy (Linear / Rack & Pinion style)
         deployConfig.Slot0.kP = IntakeConstants.KP;
@@ -72,6 +74,14 @@ public class Intake extends SubsystemBase {
 
         // roller2 still follows roller1
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
+
+        // Intake deploy neutral mode: Brake when disabled (e.g. placing robot down), Coast when enabled (allows rollback on collision)
+        RobotModeTriggers.disabled().onTrue(
+            Commands.runOnce(() -> setDeployNeutralMode(NeutralModeValue.Brake)).ignoringDisable(true)
+        );
+        RobotModeTriggers.disabled().onFalse(
+            Commands.runOnce(() -> setDeployNeutralMode(NeutralModeValue.Coast)).ignoringDisable(true)
+        );
     }
 
     @Override
@@ -177,15 +187,8 @@ public class Intake extends SubsystemBase {
     }
 
     public void setDeployNeutralMode(NeutralModeValue mode) {
-        com.ctre.phoenix6.configs.MotorOutputConfigs motorOutput = new com.ctre.phoenix6.configs.MotorOutputConfigs();
-        
-        deploy1.getConfigurator().refresh(motorOutput);
-        motorOutput.NeutralMode = mode;
-        deploy1.getConfigurator().apply(motorOutput);
-
-        deploy2.getConfigurator().refresh(motorOutput);
-        motorOutput.NeutralMode = mode;
-        deploy2.getConfigurator().apply(motorOutput);
+        deploy1.configNeutralMode(mode);
+        deploy2.configNeutralMode(mode);
     }
 
     // ==========================================
