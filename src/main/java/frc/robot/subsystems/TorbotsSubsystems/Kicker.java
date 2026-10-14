@@ -12,9 +12,22 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.wpilib.telemetry.Telemetry;
 import frc.robot.Constants.ShooterConstants;
 
+/**
+ * Kicker Subsystem:
+ * Manages the high-speed feed roller located immediately before the main flywheels.
+ * 
+ * Purpose:
+ * When the shooter flywheels are up to speed, the kicker rapidly accelerates
+ * the game piece into the drum flywheels to ensure consistent entry velocity
+ * and prevent shot trajectory dispersion.
+ * 
+ * Hardware:
+ * - 2 TalonFX motors on CANivore bus "can_s1".
+ * - kicker2 follows kicker1 with Opposed motor alignment.
+ */
 public class Kicker extends SubsystemBase {
-    private final TalonFX kicker1;
-    private final TalonFX kicker2;
+    private final TalonFX kicker1; // Master kicker motor
+    private final TalonFX kicker2; // Follower kicker motor (opposed)
 
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
@@ -25,10 +38,10 @@ public class Kicker extends SubsystemBase {
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-        // Basic current limits to prevent brownouts
+        // Current limits to prevent brownouts under high acceleration
         commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0; // Amps drawn from the battery
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        commonConfig.CurrentLimits.StatorCurrentLimit = 50.0; // Amps applied to the motor
+        commonConfig.CurrentLimits.StatorCurrentLimit = 50.0; // Amps applied to the motor coils
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         kicker1.getConfigurator().apply(commonConfig);
@@ -37,6 +50,7 @@ public class Kicker extends SubsystemBase {
         kicker2.setControl(new Follower(kicker1.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
+    @Override
     public void periodic() {
         Telemetry.log("Kicker/K1 Current", kicker1.getStatorCurrent());
         Telemetry.log("Kicker/K2 Current", kicker2.getStatorCurrent());

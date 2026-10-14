@@ -12,9 +12,22 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants.ShooterConstants;
 import org.wpilib.telemetry.Telemetry;
 
+/**
+ * Floor Subsystem:
+ * Manages the hopper floor conveyor belts/rollers.
+ * 
+ * Hardware:
+ * - 2 TalonFX motors on CANivore bus "can_s1".
+ * - floor2 follows floor1 with Opposed motor alignment.
+ * 
+ * Note:
+ * In the current competition configuration, game pieces are fed into the shooter
+ * using the intake rollers and kicker directly. The floor subsystem remains available
+ * if floor belt feeding is reintroduced.
+ */
 public class Floor extends SubsystemBase {
-    private final TalonFX floor1;
-    private final TalonFX floor2;   
+    private final TalonFX floor1; // Master floor motor
+    private final TalonFX floor2; // Follower floor motor (opposed)
 
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
@@ -25,10 +38,10 @@ public class Floor extends SubsystemBase {
         TalonFXConfiguration commonConfig = new TalonFXConfiguration();
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        // Basic current limits to prevent brownouts
-        commonConfig.CurrentLimits.SupplyCurrentLimit = 20.0; // Amps drawn from the battery
+        // Current limits (20A supply, 20A stator) to prevent belt binding damage
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 20.0;
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        commonConfig.CurrentLimits.StatorCurrentLimit = 20.0; // Amps applied to the motor
+        commonConfig.CurrentLimits.StatorCurrentLimit = 20.0;
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         floor1.getConfigurator().apply(commonConfig);
@@ -50,19 +63,20 @@ public class Floor extends SubsystemBase {
     }
 
     /**
-     * Feeds game pieces into the shooter/kicker.
+     * Feeds game pieces forward through the floor into the kicker/shooter.
      */
     public Command feedShooterCommand() {
         return runVoltageCommand(ShooterConstants.kFloorFeedVoltage);
     }
 
     /**
-     * Reverses the floor to unjam game pieces.
+     * Reverses the floor conveyor to unjam game pieces.
      */
     public Command unjamCommand() {
         return runVoltageCommand(ShooterConstants.kFloorUnjamVoltage);
     }
 
+    @Override
     public void periodic() {
         Telemetry.log("Floor/F1", floor1.getStatorCurrent());
         Telemetry.log("Floor/F2", floor2.getStatorCurrent());

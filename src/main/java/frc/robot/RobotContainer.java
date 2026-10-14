@@ -35,45 +35,69 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
+    // Gamepad controllers (Port 0: Driver, Port 1: Operator)
     private final CommandGamepad joystick = new CommandGamepad(0);
     private final CommandGamepad operatorJoystick = new CommandGamepad(1);
 
-    // Uncommented the drum subsystem
-    private final Drum drum = new Drum();
-    private final Intake intake = new Intake();
-    private final Kicker kicker = new Kicker();
-    private final Floor floor = new Floor();
+    // Robot Subsystems
+    private final Drum drum = new Drum();       // Main 4-motor flywheel shooter
+    private final Intake intake = new Intake(); // Dual-motor deploy rack & dual-motor intake rollers
+    private final Kicker kicker = new Kicker(); // Accelerator rollers feeding into drum flywheels
+    private final Floor floor = new Floor();   // Floor hopper belts/rollers
 
+    // CTRE Swerve Drivetrain instance generated via Tuner X
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    // Vision subsystem (PhotonVision multi-camera AprilTag pose estimation)
     // private final frc.robot.subsystems.Vision vision = new frc.robot.subsystems.Vision(drivetrain);
 
+    // Teleoperated shooting commands:
+    // Continuous execution (held while trigger is active). agitateIntake is set to false
+    // so the human operator has manual control over intake agitation via operatorJoystick.
     private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.LowShooterSpeed);
     private final ShootCommand maxShoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.MaxShooterSpeed);
 
+    // Auto Chooser for PathPlanner autonomous routines
     private final org.wpilib.tunable.Selectable<Command> autoChooser;
 
     public RobotContainer() {
-        // Register Named Commands for PathPlanner
+        // =========================================================================
+        // PATHPLANNER NAMED COMMANDS
+        // =========================================================================
+        // Registering named commands allows PathPlanner autonomous routines (.auto/.path)
+        // to call Java commands by name at event markers or sequential steps.
+
+        // "Shoot": Primary autonomous shooting command. Runs up to speed, feeds for
+        // kAutoShootDurationSeconds (2.5s) while agitating the intake, then ends cleanly.
         NamedCommands.registerCommand("Shoot", createAutoShootCommand());
         NamedCommands.registerCommand("Shoot With Agitation", createAutoShootCommand(true));
         NamedCommands.registerCommand("Shoot Without Agitation", createAutoShootCommand(false));
+
+        // Standalone intake agitation command for autonomous (1.5s non-blocking oscillation)
         NamedCommands.registerCommand("Agitate Intake", intake.agitateCommand());
+
+        // Intake deploy and roller commands
         NamedCommands.registerCommand("Toggle Intake", intake.toggleDeployCommand());
         NamedCommands.registerCommand("Deploy Intake", intake.deployIntakeCommand());
         NamedCommands.registerCommand("Retract Intake", intake.retractIntakeCommand());
         NamedCommands.registerCommand("Intake Game Piece", intake.intakeGamePieceCommand());
 
-        // Setup PathPlanner before generating the chooser
+        // Configure PathPlanner auto-builder with drivetrain feedback & odometry
         drivetrain.setupPathPlanner();
         
+        // Configure controller button and trigger bindings
         configureBindings();
 
-        // Build an auto chooser from the autos configured in PathPlanner GUI
+        // Build the auto chooser from the autos configured in deploy/pathplanner/autos/
         autoChooser = com.pathplanner.lib.auto.AutoBuilder.buildAutoChooser("Simple Auto");
         Tunables.publish("Auto/AutoSelection", autoChooser);
     }
 
+    /**
+     * Factory method creating a fresh, timed ShootCommand for autonomous.
+     * Unlike teleoperated shooting, this command is guaranteed to end after
+     * kAutoShootDurationSeconds so sequential autonomous steps can execute.
+     */
     public Command createAutoShootCommand() {
         return createAutoShootCommand(true);
     }
@@ -94,74 +118,89 @@ public class RobotContainer {
         );
     }
 
+    /**
+     * Configure teleoperated gamepad bindings for driver and operator.
+     * Driver controls robot navigation, shooting triggers, and basic intaking.
+     * Operator controls secondary mechanisms (unjamming, squaring, agitating).
+     */
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+        // =========================================================================
+        // DRIVETRAIN CONTROLS (Field-Centric Swerve)
+        // =========================================================================
+        // WPILib convention: +X is forward (towards red alliance wall), +Y is left.
+        // Joystick conventions: pushing forward on stick gives negative Y.
         drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)         // Drive forward/backward
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)         // Strafe left/right
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Rotate
             )
         );
 
+        // Drum Flywheel Default Command:
+        // Keeps flywheels idling at IdleShooterSpeed when not actively shooting.
+        // Using drum.run() ensures the command never prematurely ends.
         drum.setDefaultCommand(drum.run(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed)));
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
+        // Brake swerve modules in neutral while disabled
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // Intake deploy neutral mode (Brake when disabled, Coast when enabled) is configured in Intake.java
-
-        // Zero intake deploy encoder on auto init since we must be in starting configuration
+        // Zero intake deploy encoders when autonomous starts (robot starts within frame perimeter)
         RobotModeTriggers.autonomous().onTrue(
             Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true)
         );
 
-        // joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> brake));
-
-        // Reset the field-centric heading on left bumper press.
+        // Driver Button 3 (X / Left Bumper): Re-seed field-centric gyro heading
         joystick.button(3).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
-        // Hold A: Slowly ramp voltage by 0.1V/sec to find kS (releases to 0V)
-        // joystick.button(0).whileTrue(kicker.feedShooterCommand());
-        // joystick.button(1).whileTrue(kicker.unjamCommand());
-
-        // joystick.button(1).whileTrue(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
-        
-        // Manual override to zero the intake deploy encoder while testing or if placed incorrectly
+        // Driver Button 2: Manual override to zero intake deploy encoder
         joystick.button(2).onTrue(Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true));
 
+        // Driver Button 10: Hold to run intake rollers forward (intake game piece)
         joystick.button(10).whileTrue(intake.intakeGamePieceCommand());
+
+        // Driver Button 9: Hold to run intake rollers in reverse (eject game piece)
         joystick.button(9).whileTrue(intake.ejectGamePieceCommand()); 
         
+        // Driver Button 0 (A): Toggle deploy between stowed (0.0 rots) and extended (12.75 rots)
         joystick.button(0).whileTrue(intake.toggleDeployCommand());
 
+        // =========================================================================
+        // DRIVER SHOOTING TRIGGERS
+        // =========================================================================
         var rightTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f);
         var leftTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.LEFT_TRIGGER, 0.1f);
 
+        // Right Trigger only: Low speed shooting (4000 RPM) while locking drivetrain in brake
         rightTrigger.and(leftTrigger.negate()).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
+
+        // Right Trigger + Left Trigger: Max speed shooting (4800 RPM) while locking drivetrain in brake
         rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
 
-        // Button A (4) squares the intake against the hard stop to fix skewing
+        // =========================================================================
+        // OPERATOR CONTROLS
+        // =========================================================================
+        // Operator Button 0 (A): Square intake against the hard stop to correct any physical skew
         operatorJoystick.button(0).onTrue(intake.squareIntakeCommand());
-        // Left Bumper (5) manually agitates the intake halfway (useful during shooting)
+
+        // Operator Button 10 (Left Bumper): Manually agitates intake halfway while held (useful during shooting)
         operatorJoystick.button(10).whileTrue(intake.operatorAgitateCommand());
-        // Button B (6) retracts the intake in case the jam is against the bumper
+
+        // Operator Button 1 (B): Retract intake to 0.0 (in case of jam against bumper)
         operatorJoystick.button(1).onTrue(intake.retractIntakeCommand());
     }
 
-
+    /**
+     * Called by Robot.java during autonomousInit().
+     * Sets drum to idle speed and returns the autonomous command chosen on the dashboard.
+     */
     public Command getAutonomousCommand() {
         drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed);
-        // Returns the command selected in the Telemetry dropdown 
-        // generated by PathPlanner's AutoBuilder.
         return autoChooser.getSelected();
     }
 }

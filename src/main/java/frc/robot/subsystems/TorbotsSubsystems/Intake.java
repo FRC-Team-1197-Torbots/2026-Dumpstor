@@ -17,16 +17,26 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.IntakeConstants;
 
-// Subsystem will use the two deploy motors to extend the intake and then power the rollers to intake balls
+/**
+ * Intake Subsystem:
+ * Manages the robot's ground intake mechanism, which consists of two main mechanisms:
+ * 1. Deploy Rack (Linear / Rack & Pinion): Driven by two TalonFX motors (deploy1 & deploy2).
+ *    Moves the intake between stowed (0.0 rots) and extended (12.75 rots) positions.
+ * 2. Intake Rollers: Driven by two TalonFX motors (roller1 & roller2).
+ *    roller2 opposes roller1 to pull game pieces into the hopper.
+ */
 public class Intake extends SubsystemBase {
-    private final TalonFX deploy1;
-    private final TalonFX deploy2;
-    private final TalonFX roller1;
-    private final TalonFX roller2;
+    // Hardware motor controllers (Falcon 500 / Kraken X60 on CANivore bus "can_s4")
+    private final TalonFX deploy1; // Master deploy motor
+    private final TalonFX deploy2; // Follower / paired deploy motor (inverted)
+    private final TalonFX roller1; // Master roller motor
+    private final TalonFX roller2; // Follower roller motor (opposed)
 
+    // Reusable CTRE Phoenix 6 control requests (avoids object allocation every loop cycle)
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final PositionVoltage positionRequest = new PositionVoltage(0);
 
+    // Track deployment state (true = extended, false = stowed)
     private boolean isDeployed = false;
 
     public Intake() {
@@ -35,10 +45,13 @@ public class Intake extends SubsystemBase {
         roller1 = new TalonFX(IntakeConstants.Roller1, new CANBus(IntakeConstants.CANLOOP));
         roller2 = new TalonFX(IntakeConstants.Roller2, new CANBus(IntakeConstants.CANLOOP));
 
+        // ---------------------------------------------------------------------
+        // DEPLOY CONFIGURATION
+        // ---------------------------------------------------------------------
         TalonFXConfiguration deployConfig = new TalonFXConfiguration();
         deployConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         
-        // Default PID for deploy (Linear / Rack & Pinion style)
+        // Slot 0 PID for deploy position closed-loop control
         deployConfig.Slot0.kP = IntakeConstants.KP;
         deployConfig.Slot0.kI = 0.0;
         deployConfig.Slot0.kD = 0.0;
@@ -47,35 +60,44 @@ public class Intake extends SubsystemBase {
         deployConfig.Slot0.kG = 0.0;
         deployConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
-        // Current limits for deploy to prevent breaking hard stops
+        // Current limits for deploy:
+        // SupplyCurrentLimit (40A) protects the robot battery and PDP/PDH breaker from tripping.
+        // StatorCurrentLimit (30A) limits motor torque. If the intake hits the physical hard stop
+        // before reaching the exact encoder target, the motors will safely stall without burning
+        // out the coils or stripping the rack & pinion teeth.
         deployConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
         deployConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         deployConfig.CurrentLimits.StatorCurrentLimit = 30.0;
         deployConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
+        // ---------------------------------------------------------------------
+        // ROLLER CONFIGURATION
+        // ---------------------------------------------------------------------
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-        // Basic current limits to prevent brownouts
+        // Roller current limits to protect motors and avoid brownouts under ball friction
         rollerConfig.CurrentLimits.SupplyCurrentLimit = 35.0; // Amps drawn from the battery
         rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         rollerConfig.CurrentLimits.StatorCurrentLimit = 40.0; // Amps applied to the motor
         rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
+        // Invert deploy2 relative to deploy1 so both move the rack in the same physical direction
         deployConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         deploy1.getConfigurator().apply(deployConfig);
 
-        // Invert deploy2 so they can be driven with the same position request
         deployConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         deploy2.getConfigurator().apply(deployConfig);
 
         roller1.getConfigurator().apply(rollerConfig);
         roller2.getConfigurator().apply(rollerConfig);
 
-        // roller2 still follows roller1
+        // roller2 is configured as a follower opposed to roller1 to spin inward together
         roller2.setControl(new Follower(roller1.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        // Intake deploy neutral mode: Brake when disabled (e.g. placing robot down), Coast when enabled (allows rollback on collision)
+        // Intake deploy neutral mode triggers:
+        // Brake when robot is disabled (keeps intake stowed while carrying or queuing on field).
+        // Coast when enabled (allows mechanical compliance / rollback in case of hard robot collision).
         RobotModeTriggers.disabled().onTrue(
             Commands.runOnce(() -> setDeployNeutralMode(NeutralModeValue.Brake)).ignoringDisable(true)
         );
