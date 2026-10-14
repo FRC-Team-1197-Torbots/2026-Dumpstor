@@ -37,7 +37,11 @@ public class ShooterConstants {
     public final static double IdleShooterSpeed = 3000.0/60.0;
     public final static double LowShooterSpeed = 4000.0/60.0;
     public final static double MaxShooterSpeed = 4800.0/60.0;
-    
+
+    // Autonomous shooting duration (seconds to actively feed kicker/rollers)
+    public final static double kAutoShootDurationSeconds = 2.5;
+    // Fallback timeout to start feeding even if target RPS isn't strictly reached
+    public final static double kSpinupTimeoutSeconds = 1.2;
 }
 
 

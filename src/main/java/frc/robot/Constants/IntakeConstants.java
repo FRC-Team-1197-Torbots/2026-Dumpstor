@@ -21,4 +21,12 @@ public class IntakeConstants {
 
     // Deploy rotations
     public final static double kDeployTargetRots = 12.75;
+
+    // Agitation parameters
+    // Halfway deploy position for agitation (~50% deploy to shake/unbridge pieces)
+    public final static double kAgitateTargetRots = 6.375;
+    // Time in seconds for each half of the agitation oscillation cycle (in / out)
+    public final static double kAgitateCycleTime = 0.30;
+    // Default duration in seconds for standalone auto agitation
+    public final static double kDefaultAgitateDurationSeconds = 1.5;
 }

@@ -55,7 +55,10 @@ public class RobotContainer {
 
     public RobotContainer() {
         // Register Named Commands for PathPlanner
-        NamedCommands.registerCommand("Shoot", AutoShoot());
+        NamedCommands.registerCommand("Shoot", createAutoShootCommand());
+        NamedCommands.registerCommand("Shoot With Agitation", createAutoShootCommand(true));
+        NamedCommands.registerCommand("Shoot Without Agitation", createAutoShootCommand(false));
+        NamedCommands.registerCommand("Agitate Intake", intake.agitateCommand());
         NamedCommands.registerCommand("Toggle Intake", intake.toggleDeployCommand());
         NamedCommands.registerCommand("Deploy Intake", intake.deployIntakeCommand());
         NamedCommands.registerCommand("Retract Intake", intake.retractIntakeCommand());
@@ -71,9 +74,24 @@ public class RobotContainer {
         Tunables.publish("Auto/AutoSelection", autoChooser);
     }
 
-    private Command AutoShoot() {
-        shoot.initialize();
-        return shoot;
+    public Command createAutoShootCommand() {
+        return createAutoShootCommand(true);
+    }
+
+    public Command createAutoShootCommand(boolean agitate) {
+        return createAutoShootCommand(ShooterConstants.kAutoShootDurationSeconds, agitate);
+    }
+
+    public Command createAutoShootCommand(double durationSeconds, boolean agitate) {
+        return new ShootCommand(
+            drum,
+            floor,
+            kicker,
+            intake,
+            ShooterConstants.LowShooterSpeed,
+            durationSeconds,
+            agitate
+        );
     }
 
     private void configureBindings() {
@@ -88,7 +106,7 @@ public class RobotContainer {
             )
         );
 
-        drum.setDefaultCommand(Commands.runOnce(()-> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
+        drum.setDefaultCommand(drum.run(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed)));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
