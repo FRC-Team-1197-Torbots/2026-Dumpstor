@@ -5,7 +5,6 @@ import org.wpilib.system.Timer;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.TorbotsSubsystems.Drum;
-import frc.robot.subsystems.TorbotsSubsystems.Floor;
 import frc.robot.subsystems.TorbotsSubsystems.Intake;
 import frc.robot.subsystems.TorbotsSubsystems.Kicker;
 
@@ -23,7 +22,6 @@ import frc.robot.subsystems.TorbotsSubsystems.Kicker;
 public class ShootCommand extends Command {
     // Subsystem dependencies
     private final Drum drum;       // Main flywheels
-    private final Floor floor;     // Floor conveyor/hopper
     private final Kicker kicker;   // High-speed accelerator roller
     private final Intake intake;   // Intake deploy rack & intake rollers
 
@@ -52,13 +50,12 @@ public class ShootCommand extends Command {
      * manual agitation using operatorJoystick.
      *
      * @param drum      The drum flywheel subsystem
-     * @param floor     The floor conveyor subsystem
      * @param kicker    The kicker roller subsystem
      * @param intake    The intake subsystem
      * @param targetRPS Target flywheel speed in Rotations Per Second (RPS)
      */
-    public ShootCommand(Drum drum, Floor floor, Kicker kicker, Intake intake, double targetRPS) {
-        this(drum, floor, kicker, intake, targetRPS, -1.0, false);
+    public ShootCommand(Drum drum, Kicker kicker, Intake intake, double targetRPS) {
+        this(drum, kicker, intake, targetRPS, -1.0, false);
     }
 
     /**
@@ -66,7 +63,6 @@ public class ShootCommand extends Command {
      * Feeds game pieces for a set duration after reaching target speed, then automatically finishes.
      *
      * @param drum                 The drum flywheel subsystem
-     * @param floor                The floor conveyor subsystem
      * @param kicker               The kicker roller subsystem
      * @param intake               The intake subsystem
      * @param targetRPS            Target flywheel speed in Rotations Per Second (RPS)
@@ -76,7 +72,6 @@ public class ShootCommand extends Command {
      */
     public ShootCommand(
         Drum drum,
-        Floor floor,
         Kicker kicker,
         Intake intake,
         double targetRPS,
@@ -84,7 +79,6 @@ public class ShootCommand extends Command {
         boolean agitateIntake
     ) {
         this.drum = drum;
-        this.floor = floor;
         this.kicker = kicker;
         this.intake = intake;
         this.targetRPS = targetRPS;
@@ -93,11 +87,7 @@ public class ShootCommand extends Command {
 
         // Subsystem requirements: Tells WPILib's CommandScheduler that this command
         // requires exclusive access to these subsystems.
-        if (floor != null) {
-            addRequirements(drum, floor, kicker, intake);
-        } else {
-            addRequirements(drum, kicker, intake);
-        }
+        addRequirements(drum, kicker, intake);
     }
 
     /**
@@ -114,9 +104,6 @@ public class ShootCommand extends Command {
         drum.setVelocityRPS(targetRPS);
 
         // Ensure all feeder mechanisms are stopped while spinning up
-        if (floor != null) {
-            floor.stop();
-        }
         kicker.stop();
         intake.stopRollers();
 
@@ -155,11 +142,6 @@ public class ShootCommand extends Command {
             // Power intake rollers to push balls back towards kicker
             intake.setRollerVoltage(IntakeConstants.kIntakeRollerVoltage);
 
-            // If floor feed is enabled and floor subsystem is present, assist feeding
-            if (ShooterConstants.kUseFloorFeed && floor != null) {
-                floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
-            }
-
             // Autonomous Agitation:
             // Uses a simple time-modulo oscillation (every 0.3s) to pulse the intake deploy
             // halfway in and back out, breaking any ball bridging/jamming inside the hopper.
@@ -185,9 +167,6 @@ public class ShootCommand extends Command {
         drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed);
 
         // Immediately stop feed mechanisms
-        if (floor != null) {
-            floor.stop();
-        }
         kicker.stop();
         intake.stopRollers();
 

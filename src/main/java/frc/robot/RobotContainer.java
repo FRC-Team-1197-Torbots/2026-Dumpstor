@@ -54,8 +54,8 @@ public class RobotContainer {
     // Teleoperated shooting commands:
     // Continuous execution (held while trigger is active). agitateIntake is set to false
     // so the human operator has manual control over intake agitation via operatorJoystick.
-    private final ShootCommand shoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.LowShooterSpeed);
-    private final ShootCommand maxShoot = new ShootCommand(drum, floor, kicker, intake, ShooterConstants.MaxShooterSpeed);
+    private final ShootCommand shoot = new ShootCommand(drum, kicker, intake, ShooterConstants.LowShooterSpeed);
+    private final ShootCommand maxShoot = new ShootCommand(drum, kicker, intake, ShooterConstants.MaxShooterSpeed);
 
     // Auto Chooser for PathPlanner autonomous routines
     private final org.wpilib.tunable.Selectable<Command> autoChooser;
@@ -109,7 +109,6 @@ public class RobotContainer {
     public Command createAutoShootCommand(double durationSeconds, boolean agitate) {
         return new ShootCommand(
             drum,
-            floor,
             kicker,
             intake,
             ShooterConstants.LowShooterSpeed,
