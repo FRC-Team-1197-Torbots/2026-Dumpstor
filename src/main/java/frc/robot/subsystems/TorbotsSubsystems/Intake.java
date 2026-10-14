@@ -134,14 +134,6 @@ public class Intake extends SubsystemBase {
         deploy2.stopMotor();
     }
 
-    public Command runDeployCommand(double volts) {
-        return this.run(() -> setDeployVoltage(volts)).finallyDo(interrupted -> stopDeploy());
-    }
-
-    public Command runDeployToPositionCommand(double positionRots) {
-        return this.run(() -> setDeployPosition(positionRots));
-    }
-
     
 
     /**

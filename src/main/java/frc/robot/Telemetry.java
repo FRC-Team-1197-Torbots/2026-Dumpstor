@@ -81,6 +81,7 @@ public class Telemetry {
     };
 
     private final double[] m_poseArray = new double[3];
+    private double m_lastDashboardLogTime = 0.0;
 
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
     public void telemeterize(SwerveDriveState state) {
@@ -110,23 +111,31 @@ public class Telemetry {
         m_poseArray[2] = state.Pose.getRotation().getDegrees();
         fieldPub.set(m_poseArray);
 
-        // Simple Telemetry prints for easy vision debugging
-        org.wpilib.telemetry.Telemetry.log("Robot Pose X", state.Pose.getX());
-        org.wpilib.telemetry.Telemetry.log("Robot Pose Y", state.Pose.getY());
-        org.wpilib.telemetry.Telemetry.log("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
+        // Optimization: CTRE odometry callbacks fire at up to 250 Hz.
+        // String formatting, Telemetry.log lookup maps, and Mechanism2d redraws are throttled
+        // to 20 Hz (every 50ms) to prevent unnecessary roboRIO CPU load and loop overruns.
+        double now = com.ctre.phoenix6.Utils.getCurrentTimeSeconds();
+        if (now - m_lastDashboardLogTime >= 0.05) {
+            m_lastDashboardLogTime = now;
 
-        // Distance to 2026 Hubs
-        double distToBlueHub = state.Pose.getTranslation().getDistance(frc.robot.Constants.FieldConstants.BlueTargetPose.getTranslation());
-        double distToRedHub = state.Pose.getTranslation().getDistance(frc.robot.Constants.FieldConstants.RedTargetPose.getTranslation());
-        
-        org.wpilib.telemetry.Telemetry.log("Distance To Blue Hub", distToBlueHub);
-        org.wpilib.telemetry.Telemetry.log("Distance To Red Hub", distToRedHub);
+            // Simple Telemetry prints for easy vision debugging
+            org.wpilib.telemetry.Telemetry.log("Robot Pose X", state.Pose.getX());
+            org.wpilib.telemetry.Telemetry.log("Robot Pose Y", state.Pose.getY());
+            org.wpilib.telemetry.Telemetry.log("Robot Pose Rotation", state.Pose.getRotation().getDegrees());
 
-        /* Telemeterize each module state to a Mechanism2d */
-        for (int i = 0; i < 4; ++i) {
-            m_moduleSpeeds[i].setAngle(state.ModuleVelocities[i].angle);
-            m_moduleDirections[i].setAngle(state.ModuleVelocities[i].angle);
-            m_moduleSpeeds[i].setLength(state.ModuleVelocities[i].velocity / (2 * MaxSpeed));
+            // Distance to 2026 Hubs
+            double distToBlueHub = state.Pose.getTranslation().getDistance(frc.robot.Constants.FieldConstants.BlueTargetPose.getTranslation());
+            double distToRedHub = state.Pose.getTranslation().getDistance(frc.robot.Constants.FieldConstants.RedTargetPose.getTranslation());
+            
+            org.wpilib.telemetry.Telemetry.log("Distance To Blue Hub", distToBlueHub);
+            org.wpilib.telemetry.Telemetry.log("Distance To Red Hub", distToRedHub);
+
+            /* Telemeterize each module state to a Mechanism2d */
+            for (int i = 0; i < 4; ++i) {
+                m_moduleSpeeds[i].setAngle(state.ModuleVelocities[i].angle);
+                m_moduleDirections[i].setAngle(state.ModuleVelocities[i].angle);
+                m_moduleSpeeds[i].setLength(state.ModuleVelocities[i].velocity / (2 * MaxSpeed));
+            }
         }
     }
 }

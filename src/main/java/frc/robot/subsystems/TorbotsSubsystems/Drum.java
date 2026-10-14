@@ -37,8 +37,6 @@ public class Drum extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
-    private double testKS = 0.0f;
-
     public Drum() {
         Right1 = new TalonFX(ShooterConstants.CANDrumRight1, new CANBus(ShooterConstants.CANLOOP));
         Right2 = new TalonFX(ShooterConstants.CANDrumRight2, new CANBus(ShooterConstants.CANLOOP));
@@ -110,41 +108,5 @@ public class Drum extends SubsystemBase {
 
     public void stop() {
         Right1.stopMotor();
-    }
-
-    // ==========================================
-    // UTILITY TUNING COMMANDS & CALCULATIONS
-    // ==========================================
-
-    /**
-     * Slowly ramps open-loop voltage by 0.1V/sec.
-     * Note the voltage on Telemetry the moment the drum begins rolling.
-     */
-    public Command findKSCommand() {
-        return this.run(() -> {
-            
-            double nextVolt = testKS + 0.001d;
-            setVoltage(nextVolt);
-            testKS = nextVolt;
-        }).finallyDo(interrupted -> stop());
-    }
-
-    /**
-     * Runs drum at a target test voltage (e.g., 8.0V - 10.0V).
-     * Once drum hits top speed, pass the steady-state RPS to computeKV().
-     */
-    public Command runVoltageCharacterization(double testVolts) {
-        return this.run(() -> setVoltage(testVolts))
-                .finallyDo(interrupted -> stop());
-    }
-
-    /**
-     * Calculates kV in Volts per RPS.
-     * Formula: kV = (AppliedVolts - kS) / MeasuredRPS
-     */
-    public static double computeKV(double appliedVolts, double steadyStateRPS, double measuredKS) {
-        if (steadyStateRPS <= 0.01)
-            return 0.0;
-        return (appliedVolts - measuredKS) / steadyStateRPS;
     }
 }

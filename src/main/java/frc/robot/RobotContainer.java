@@ -119,6 +119,17 @@ public class RobotContainer {
     }
 
     /**
+     * Applies a quadratic response curve to joystick axis inputs while preserving sign.
+     * Small stick inputs give precise, smooth micro-adjustments for lining up with
+     * targets, while full stick deflection still yields 100% of maximum speed.
+     *
+     * Formula: sign(input) * (input)^2
+     */
+    private static double applyStickCurve(double input) {
+        return Math.copySign(input * input, input);
+    }
+
+    /**
      * Configure teleoperated gamepad bindings for driver and operator.
      * Driver controls robot navigation, shooting triggers, and basic intaking.
      * Operator controls secondary mechanisms (unjamming, squaring, agitating).
@@ -129,11 +140,12 @@ public class RobotContainer {
         // =========================================================================
         // WPILib convention: +X is forward (towards red alliance wall), +Y is left.
         // Joystick conventions: pushing forward on stick gives negative Y.
+        // applyStickCurve provides fine precision near center stick and full speed at max throw.
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)         // Drive forward/backward
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)         // Strafe left/right
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Rotate
+                drive.withVelocityX(applyStickCurve(-joystick.getLeftY()) * MaxSpeed)         // Drive forward/backward
+                    .withVelocityY(applyStickCurve(-joystick.getLeftX()) * MaxSpeed)         // Strafe left/right
+                    .withRotationalRate(applyStickCurve(-joystick.getRightX()) * MaxAngularRate) // Rotate
             )
         );
 

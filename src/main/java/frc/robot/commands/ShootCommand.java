@@ -92,9 +92,12 @@ public class ShootCommand extends Command {
         this.agitateIntake = agitateIntake;
 
         // Subsystem requirements: Tells WPILib's CommandScheduler that this command
-        // requires exclusive access to these subsystems. If another command attempts
-        // to control any of these subsystems, this command will be interrupted.
-        addRequirements(drum, floor, kicker, intake);
+        // requires exclusive access to these subsystems.
+        if (floor != null) {
+            addRequirements(drum, floor, kicker, intake);
+        } else {
+            addRequirements(drum, kicker, intake);
+        }
     }
 
     /**
@@ -111,7 +114,9 @@ public class ShootCommand extends Command {
         drum.setVelocityRPS(targetRPS);
 
         // Ensure all feeder mechanisms are stopped while spinning up
-        floor.stop();
+        if (floor != null) {
+            floor.stop();
+        }
         kicker.stop();
         intake.stopRollers();
 
@@ -150,6 +155,11 @@ public class ShootCommand extends Command {
             // Power intake rollers to push balls back towards kicker
             intake.setRollerVoltage(IntakeConstants.kIntakeRollerVoltage);
 
+            // If floor feed is enabled and floor subsystem is present, assist feeding
+            if (ShooterConstants.kUseFloorFeed && floor != null) {
+                floor.setVoltage(ShooterConstants.kFloorFeedVoltage);
+            }
+
             // Autonomous Agitation:
             // Uses a simple time-modulo oscillation (every 0.3s) to pulse the intake deploy
             // halfway in and back out, breaking any ball bridging/jamming inside the hopper.
@@ -175,7 +185,9 @@ public class ShootCommand extends Command {
         drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed);
 
         // Immediately stop feed mechanisms
-        floor.stop();
+        if (floor != null) {
+            floor.stop();
+        }
         kicker.stop();
         intake.stopRollers();
 

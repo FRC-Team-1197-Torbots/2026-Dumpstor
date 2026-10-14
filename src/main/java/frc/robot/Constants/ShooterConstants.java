@@ -14,10 +14,6 @@ public class ShooterConstants {
     public final static int CANDrumLeft1 = 3;  // Follower motor (opposed)
     public final static int CANDrumLeft2 = 4;  // Follower motor (opposed)
 
-    // CANrange distance/proximity sensor IDs (currently uninstantiated)
-    public final static int CANRange1 = 30; // in the main feed line
-    public final static int CANRange2 = 31; // in the hopper
-
     // CAN IDs for the 2 Kicker roller motors
     public final static int CANKick1 = 5; // Master kicker motor
     public final static int CANKick2 = 6; // Follower kicker motor (opposed)
@@ -26,7 +22,10 @@ public class ShooterConstants {
     public final static int CANFloor1 = 7; // Master floor motor
     public final static int CANFloor2 = 8; // Follower floor motor (opposed)
 
-    // Floor/Hopper speeds (Volts)
+    // Floor/Hopper control:
+    // Set to true if the physical robot uses floor conveyor belts to advance balls into kicker.
+    // Set to false if balls feed directly from intake rollers into kicker (current setup).
+    public final static boolean kUseFloorFeed = false;
     public final static double kFloorFeedVoltage = 4.0;
     public final static double kFloorUnjamVoltage = -6.0;
 
