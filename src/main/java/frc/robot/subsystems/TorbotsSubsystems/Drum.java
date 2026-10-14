@@ -48,12 +48,12 @@ public class Drum extends SubsystemBase {
         commonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         // Slot 0 velocity PID gains on the master motor:
-        // kS: Static friction feedforward (volts added when velocity is commanded)
-        // kV: Velocity feedforward (volts per RPS)
-        // kP: Proportional gain (volts per unit of RPS error)
-        commonConfig.Slot0.kS = 7.5;
-        commonConfig.Slot0.kV = 0.0;
-        commonConfig.Slot0.kP = 0.7;
+        // kS: Static friction feedforward (0.20V overcomes bearing/gearbox breakaway friction)
+        // kV: Velocity feedforward (~0.118V per RPS; 12V / 100 RPS theoretical for Kraken X60)
+        // kP: Proportional gain (0.15V per unit of RPS error for fast recovery without surging)
+        commonConfig.Slot0.kS = 0.20;
+        commonConfig.Slot0.kV = 0.118;
+        commonConfig.Slot0.kP = 0.15;
         commonConfig.Slot0.kD = 0.0;
 
         // Flywheels take massive energy to spin up quickly. With 4 motors, an unrestricted
