@@ -88,7 +88,7 @@ public class RobotContainer {
             )
         );
 
-        drum.setDefaultCommand(Commands.runOnce(()-> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
+        drum.setDefaultCommand(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -104,26 +104,28 @@ public class RobotContainer {
             Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true)
         );
 
-        // joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> brake));
+        // joystick.button(6).whileTrue(drivetrain.applyRequest(() -> brake));
 
-        // Reset the field-centric heading on left bumper press.
-        joystick.button(3).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        // Reset the field-centric heading on Y button press (NI DS Button 4)
+        joystick.button(4).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
         // Hold A: Slowly ramp voltage by 0.1V/sec to find kS (releases to 0V)
-        // joystick.button(0).whileTrue(kicker.feedShooterCommand());
-        // joystick.button(1).whileTrue(kicker.unjamCommand());
+        // joystick.button(1).whileTrue(kicker.feedShooterCommand());
+        // joystick.button(2).whileTrue(kicker.unjamCommand());
 
-        // joystick.button(1).whileTrue(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
+        // joystick.button(2).whileTrue(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
         
-        // Manual override to zero the intake deploy encoder while testing or if placed incorrectly
-        joystick.button(2).onTrue(Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true));
+        // Manual override to zero the intake deploy encoder (NI DS Button 3 = X)
+        joystick.button(3).onTrue(Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true));
 
-        joystick.button(10).whileTrue(intake.intakeGamePieceCommand());
-        joystick.button(9).whileTrue(intake.ejectGamePieceCommand()); 
+        // NI DS Button 6 = Right Bumper, Button 5 = Left Bumper
+        joystick.button(6).whileTrue(intake.intakeGamePieceCommand());
+        joystick.button(5).whileTrue(intake.ejectGamePieceCommand()); 
         
-        joystick.button(0).whileTrue(intake.toggleDeployCommand());
+        // NI DS Button 1 = A Button
+        joystick.button(1).whileTrue(intake.toggleDeployCommand());
 
         var rightTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f);
         var leftTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.LEFT_TRIGGER, 0.1f);
@@ -131,14 +133,13 @@ public class RobotContainer {
         rightTrigger.and(leftTrigger.negate()).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
         rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
 
-        // Button A (4) squares the intake against the hard stop to fix skewing
-        operatorJoystick.button(0).onTrue(intake.squareIntakeCommand());
-        // Left Bumper (5) manually agitates the intake halfway (useful during shooting)
-        operatorJoystick.button(10).whileTrue(intake.operatorAgitateCommand());
-        // Button B (6) retracts the intake in case the jam is against the bumper
-        operatorJoystick.button(1).onTrue(intake.retractIntakeCommand());
+        // Button A (1) squares the intake against the hard stop to fix skewing
+        operatorJoystick.button(1).onTrue(intake.squareIntakeCommand());
+        // Right Bumper (6) manually agitates the intake halfway (useful during shooting)
+        operatorJoystick.button(6).whileTrue(intake.operatorAgitateCommand());
+        // Button B (2) retracts the intake in case the jam is against the bumper
+        operatorJoystick.button(2).onTrue(intake.retractIntakeCommand());
     }
-
 
     public Command getAutonomousCommand() {
         drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed);
