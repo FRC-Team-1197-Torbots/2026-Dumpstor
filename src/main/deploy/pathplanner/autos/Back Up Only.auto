@@ -9,12 +9,6 @@
           "data": {
             "pathName": "Center Backup"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deploy Intake"
-          }
         }
       ]
     }

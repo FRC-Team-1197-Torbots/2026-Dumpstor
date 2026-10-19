@@ -10,7 +10,10 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
+import org.wpilib.command2.button.CommandNiDsXboxController;
 import org.wpilib.command2.button.RobotModeTriggers;
+import org.wpilib.driverstation.Gamepad;
+import org.wpilib.driverstation.NiDsXboxController;
 import org.wpilib.tunable.Tunables;
 import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.Constants.ShooterConstants;
@@ -35,8 +38,8 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandGamepad joystick = new CommandGamepad(0);
-    private final CommandGamepad operatorJoystick = new CommandGamepad(1);
+    private final CommandNiDsXboxController joystick = new CommandNiDsXboxController(0);
+    private final CommandNiDsXboxController operatorJoystick = new CommandNiDsXboxController(1);
 
     // Uncommented the drum subsystem
     private final Drum drum = new Drum();
@@ -67,7 +70,7 @@ public class RobotContainer {
         configureBindings();
 
         // Build an auto chooser from the autos configured in PathPlanner GUI
-        autoChooser = com.pathplanner.lib.auto.AutoBuilder.buildAutoChooser("Simple Auto");
+        autoChooser = com.pathplanner.lib.auto.AutoBuilder.buildAutoChooser();
         Tunables.publish("Auto/AutoSelection", autoChooser);
     }
 
@@ -84,7 +87,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(-(Math.signum(joystick.getRightX()) * Math.pow(joystick.getRightX(), 2.0)) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -107,7 +110,7 @@ public class RobotContainer {
         // joystick.button(6).whileTrue(drivetrain.applyRequest(() -> brake));
 
         // Reset the field-centric heading on Y button press (NI DS Button 4)
-        joystick.button(4).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick.y().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
@@ -118,27 +121,28 @@ public class RobotContainer {
         // joystick.button(2).whileTrue(Commands.runOnce(() -> drum.setVelocityRPS(ShooterConstants.IdleShooterSpeed), drum));
         
         // Manual override to zero the intake deploy encoder (NI DS Button 3 = X)
-        joystick.button(3).onTrue(Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true));
+        joystick.x().onTrue(Commands.runOnce(() -> intake.zeroDeployEncoder()).ignoringDisable(true));
 
         // NI DS Button 6 = Right Bumper, Button 5 = Left Bumper
-        joystick.button(6).whileTrue(intake.intakeGamePieceCommand());
-        joystick.button(5).whileTrue(intake.ejectGamePieceCommand()); 
+        joystick.rightBumper().whileTrue(intake.intakeGamePieceCommand());
+        joystick.leftBumper().whileTrue(intake.ejectGamePieceCommand()); 
         
         // NI DS Button 1 = A Button
-        joystick.button(1).whileTrue(intake.toggleDeployCommand());
+        joystick.a().whileTrue(intake.toggleDeployCommand());
 
-        var rightTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.RIGHT_TRIGGER, 0.1f);
-        var leftTrigger = joystick.axisGreaterThan(org.wpilib.driverstation.Gamepad.Axis.LEFT_TRIGGER, 0.1f);
+        joystick.rightTrigger(0.1f).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
+        // boolean rightTrigger = joystick.getRightTriggerAxis() > 0.1f;
+        // boolean leftTrigger = joystick.getLeftTriggerAxis() >  0.1f;
 
-        rightTrigger.and(leftTrigger.negate()).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
-        rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
+        // rightTrigger.and(!leftTrigger).whileTrue(shoot.alongWith(drivetrain.applyRequest(() -> brake)));
+        // rightTrigger.and(leftTrigger).whileTrue(maxShoot.alongWith(drivetrain.applyRequest(() -> brake)));
 
         // Button A (1) squares the intake against the hard stop to fix skewing
-        operatorJoystick.button(1).onTrue(intake.squareIntakeCommand());
+        operatorJoystick.a().onTrue(intake.squareIntakeCommand());
         // Right Bumper (6) manually agitates the intake halfway (useful during shooting)
-        operatorJoystick.button(6).whileTrue(intake.operatorAgitateCommand());
+        operatorJoystick.rightBumper().whileTrue(intake.operatorAgitateCommand());
         // Button B (2) retracts the intake in case the jam is against the bumper
-        operatorJoystick.button(2).onTrue(intake.retractIntakeCommand());
+        operatorJoystick.b().onTrue(intake.retractIntakeCommand());
     }
 
     public Command getAutonomousCommand() {
