@@ -44,11 +44,11 @@ public class Drum extends SubsystemBase {
         // Flywheels take massive energy to spin up quickly. With 4 motors, a full unrestrained
         // spin-up would draw >200A and cause a brownout. We cap the supply limit to 35-40A per motor
         // (140-160A total) which a healthy battery can handle for the 1-2 second spin-up.
-        commonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        commonConfig.CurrentLimits.SupplyCurrentLimit = 35.0;
         commonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         
         // Flywheels rarely stall, but if a game piece gets completely jammed, this protects the motors.
-        commonConfig.CurrentLimits.StatorCurrentLimit = 50.0;
+        commonConfig.CurrentLimits.StatorCurrentLimit = 35.0;
         commonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         Right1.getConfigurator().apply(commonConfig);
