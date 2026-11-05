@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.791427419354839,
-        "y": 5.358927419354838
+        "x": 2.266370106761567,
+        "y": 5.363760379596679
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.925634381160593,
-        "y": 5.569850370696955
+        "x": 2.400577068567321,
+        "y": 5.574683330938795
       },
       "isLocked": false,
       "linkedName": "left double shoot"
@@ -103,7 +103,7 @@
     },
     {
       "waypointRelativePos": 2.4212218649517707,
-      "rotationDegrees": 65.99025878926355
+      "rotationDegrees": 65.99025878926356
     },
     {
       "waypointRelativePos": 3.8665594855305607,
